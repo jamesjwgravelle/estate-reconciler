@@ -1,0 +1,44 @@
+ here's the second round: python3 evals/run_agent_eval.py
+
+[stands     ] amount_mismatch / D-01
+
+[explained  ] amount_mismatch / D-11
+
+[stands     ] arithmetic_error / total_disbursements
+
+[stands     ] balance_mismatch / balance_on_hand
+
+[stands     ] missing_document / appraisal
+
+[explained  ] missing_document / inventory
+
+[stands     ] missing_document / t3_return
+
+[needs_human] timeline_contradiction / notice_of_assessment
+
+[explained  ] undisclosed_transaction / 2023-08-28:1800.00
+
+[explained  ] undisclosed_transaction / 2023-09-05:1250.00
+
+[explained  ] undisclosed_transaction / 2023-09-07:1250.00
+
+[stands     ] undisclosed_transaction / 2023-10-20:5000.00
+
+[stands     ] unsupported_entry / D-04
+
+[needs_human] compensation_review / D-09
+
+[stands     ] letter_vs_records / R-03
+
+[stands     ] date_mismatch / D-07
+
+
+wrongly dismissed: 0 of 11 real problems
+
+decoys cleared:    5 of 5
+
+sent to a human:   2
+
+precision of what remains: 100%
+
+    guardrail: compensation_review / D-09: routed to a lawyer by rule: this turns on judgment, not on the documents

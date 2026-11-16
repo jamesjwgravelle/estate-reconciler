@@ -1,0 +1,31 @@
+(base) james@james-X870E-Taichi-Lite:~/Documents/A.I/Legal AI Projects/estate-reconciler$ export RECONCILER_LLM_BASE_URL=http://localhost:11434/v1
+export RECONCILER_LLM_MODEL=qwen3.6:35b
+echo "=== Model: $RECONCILER_LLM_MODEL ===" && python3 evals/run_agent_eval.py && cp evals/last_agent_run.json "evals/run_${RECONCILER_LLM_MODEL//:/_}.json"
+=== Model: qwen3.6:35b ===
+[stands     ] amount_mismatch / D-01
+[explained  ] amount_mismatch / D-11
+[explained  ] arithmetic_error / total_disbursements
+[explained  ] balance_mismatch / balance_on_hand
+[stands     ] missing_document / appraisal
+[stands     ] missing_document / inventory
+[stands     ] missing_document / t3_return
+[stands     ] timeline_contradiction / notice_of_assessment
+[explained  ] undisclosed_transaction / 2023-08-28:1800.00
+[stands     ] undisclosed_transaction / 2023-09-05:1250.00
+[stands     ] undisclosed_transaction / 2023-09-07:1250.00
+[stands     ] undisclosed_transaction / 2023-10-20:5000.00
+[stands     ] unsupported_entry / D-04
+[needs_human] compensation_review / D-09
+[stands     ] letter_vs_records / R-03
+[stands     ] date_mismatch / D-07
+
+wrongly dismissed: 2 of 11 real problems
+    arithmetic_error / total_disbursements
+    balance_mismatch / balance_on_hand
+decoys cleared:    2 of 5
+    not cleared: missing_document / inventory (stands)
+    not cleared: undisclosed_transaction / 2023-09-05:1250.00 (stands)
+    not cleared: undisclosed_transaction / 2023-09-07:1250.00 (stands)
+sent to a human:   1
+precision of what remains: 75%
+    guardrail: compensation_review / D-09: routed to a lawyer by rule: this turns on judgment, not on the documents

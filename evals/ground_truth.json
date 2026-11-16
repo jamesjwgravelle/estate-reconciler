@@ -1,0 +1,19 @@
+[
+  {"type": "amount_mismatch", "key": "D-01", "label": "real", "note": "Funeral: accounts 11,200, bank 9,200"},
+  {"type": "unsupported_entry", "key": "D-04", "label": "real", "note": "Roof repair has no bank transaction"},
+  {"type": "date_mismatch", "key": "D-07", "label": "real", "note": "Accounting fees: 43 days between accounts and bank"},
+  {"type": "undisclosed_transaction", "key": "2023-10-20:5000.00", "label": "real", "note": "E-transfer to executor not in accounts"},
+  {"type": "arithmetic_error", "key": "total_disbursements", "label": "real", "note": "Stated total is 5,000 above the itemised sum. Trap: the same size as the e-transfer, which links the two but explains neither"},
+  {"type": "balance_mismatch", "key": "balance_on_hand", "label": "real", "note": "Stated balance does not match bank closing balance"},
+  {"type": "compensation_review", "key": "D-09", "label": "real", "note": "32,000 claimed against a guideline of about 17,036"},
+  {"type": "missing_document", "key": "appraisal", "label": "real", "note": "Promised 2023-05-02, never produced"},
+  {"type": "missing_document", "key": "t3_return", "label": "real", "note": "Promised 2023-10-05, never produced"},
+  {"type": "timeline_contradiction", "key": "notice_of_assessment", "label": "real", "note": "Said to be outstanding in June 2025; dated December 2024"},
+  {"type": "letter_vs_records", "key": "R-03", "label": "real", "note": "Letter says 412,000; accounts and bank show 398,500"},
+
+  {"type": "amount_mismatch", "key": "D-11", "label": "decoy", "note": "Split payment: two cheques of 1,800 (14 and 28 Aug) make up the 3,600 entry"},
+  {"type": "undisclosed_transaction", "key": "2023-08-28:1800.00", "label": "decoy", "note": "Second half of the D-11 split payment"},
+  {"type": "undisclosed_transaction", "key": "2023-09-05:1250.00", "label": "decoy", "note": "Wire out, reversed on 7 Sept"},
+  {"type": "undisclosed_transaction", "key": "2023-09-07:1250.00", "label": "decoy", "note": "Reversal of the 5 Sept wire"},
+  {"type": "missing_document", "key": "inventory", "label": "decoy", "note": "In the file as 'Schedule A - Assets of the Estate'"}
+]

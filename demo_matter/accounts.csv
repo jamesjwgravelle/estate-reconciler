@@ -1,0 +1,17 @@
+entry_id,date,type,description,amount
+R-01,2023-03-20,receipt,Transfer in - deceased's chequing account closing balance,48310.22
+R-02,2023-04-11,receipt,Life insurance proceeds - Lakeshore Mutual,25000.00
+R-03,2023-09-15,receipt,Sale of 14 Alder Lane - net proceeds,398500.00
+R-04,2023-10-02,receipt,Sale of vehicle - 2016 Subaru,9800.00
+R-05,2024-02-28,receipt,CRA refund - terminal return,1942.67
+D-01,2023-03-28,disbursement,Funeral - Hillcrest Funeral Home,11200.00
+D-02,2023-04-05,disbursement,Probate fees - Minister of Finance,2105.00
+D-03,2023-05-12,disbursement,Property insurance - 14 Alder Lane,1380.00
+D-04,2023-06-20,disbursement,Roof repair - Keller Contracting,8450.00
+D-05,2023-07-03,disbursement,Property taxes - City of Kingston,3212.40
+D-10,2023-08-01,disbursement,Utilities - final hydro account,412.18
+D-11,2023-08-14,disbursement,House cleanout - Brightway Haulage,3600.00
+D-06,2023-09-18,disbursement,Legal fees - Whitlock & Pryce LLP,14690.00
+D-07,2023-11-06,disbursement,Accounting fees - Brandt CPA,2825.00
+D-08,2024-01-15,disbursement,Interim distribution to beneficiaries,150000.00
+D-09,2024-03-01,disbursement,Executor compensation,32000.00

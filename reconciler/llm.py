@@ -1,0 +1,45 @@
+"""Optional language-model client for any OpenAI-compatible endpoint.
+
+Works with a local server (Ollama, llama.cpp, vLLM), so privileged documents never have to
+leave the machine. Configure with environment variables:
+
+    RECONCILER_LLM_BASE_URL   e.g. http://localhost:11434/v1
+    RECONCILER_LLM_MODEL      a model that supports tool calling, for the investigator
+    RECONCILER_LLM_API_KEY    optional
+"""
+from __future__ import annotations
+
+import json
+import os
+import urllib.request
+
+
+def configured() -> bool:
+    return bool(os.environ.get("RECONCILER_LLM_BASE_URL") and os.environ.get("RECONCILER_LLM_MODEL"))
+
+
+class Client:
+    def __init__(self, base_url: str | None = None, model: str | None = None,
+                 api_key: str | None = None, timeout: int = 300):
+        self.base = (base_url or os.environ["RECONCILER_LLM_BASE_URL"]).rstrip("/")
+        self.model = model or os.environ["RECONCILER_LLM_MODEL"]
+        self.key = api_key or os.environ.get("RECONCILER_LLM_API_KEY")
+        self.timeout = timeout
+
+    def complete(self, messages: list[dict], tools: list[dict] | None = None) -> dict:
+        """One chat turn. Returns the assistant message (which may contain tool_calls)."""
+        body = {"model": self.model, "temperature": 0, "messages": messages}
+        if tools:
+            body["tools"] = tools
+        headers = {"Content-Type": "application/json"}
+        if self.key:
+            headers["Authorization"] = f"Bearer {self.key}"
+        req = urllib.request.Request(f"{self.base}/chat/completions",
+                                     data=json.dumps(body).encode(), headers=headers)
+        with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+            return json.load(resp)["choices"][0]["message"]
+
+
+def chat(system: str, user: str) -> str:
+    msg = Client().complete([{"role": "system", "content": system}, {"role": "user", "content": user}])
+    return (msg.get("content") or "").strip()

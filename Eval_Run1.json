@@ -1,0 +1,42 @@
+{
+  "timestamp": "2026-11-16",
+  "environment": {
+    "user": "james",
+    "host": "james-X870E-Taichi-Lite",
+    "directory": "~/Documents/A.I/Legal AI Projects/estate-reconciler",
+    "llm_base_url": "http://localhost:11434/v1",
+    "llm_model": "qwen3.8"
+  },
+  "eval_results": [
+    {"status": "stands", "category": "amount_mismatch", "id": "D-01"},
+    {"status": "explained", "category": "amount_mismatch", "id": "D-11"},
+    {"status": "needs_human", "category": "arithmetic_error", "id": "total_disbursements"},
+    {"status": "needs_human", "category": "balance_mismatch", "id": "balance_on_hand"},
+    {"status": "stands", "category": "missing_document", "id": "appraisal"},
+    {"status": "explained", "category": "missing_document", "id": "inventory"},
+    {"status": "stands", "category": "missing_document", "id": "t3_return"},
+    {"status": "needs_human", "category": "timeline_contradiction", "id": "notice_of_assessment"},
+    {"status": "explained", "category": "undisclosed_transaction", "id": "2023-08-28:1800.00"},
+    {"status": "explained", "category": "undisclosed_transaction", "id": "2023-09-05:1250.00"},
+    {"status": "explained", "category": "undisclosed_transaction", "id": "2023-09-07:1250.00"},
+    {"status": "stands", "category": "undisclosed_transaction", "id": "2023-10-20:5000.00"},
+    {"status": "needs_human", "category": "unsupported_entry", "id": "D-04"},
+    {"status": "needs_human", "category": "compensation_review", "id": "D-09"},
+    {"status": "stands", "category": "letter_vs_records", "id": "R-03"},
+    {"status": "stands", "category": "date_mismatch", "id": "D-07"}
+  ],
+  "metrics": {
+    "wrongly_dismissed": 0,
+    "total_real_problems": 11,
+    "decoys_cleared": 5,
+    "total_decoys": 5,
+    "sent_to_human": 5,
+    "precision_remaining": "100%"
+  },
+  "guardrail_logs": [
+    "balance_mismatch / balance_on_hand: step limit reached without a verdict",
+    "timeline_contradiction / notice_of_assessment: step limit reached without a verdict",
+    "unsupported_entry / D-04: step limit reached without a verdict",
+    "compensation_review / D-09: routed to a lawyer by rule: this turns on judgment, not on the documents"
+  ]
+}
