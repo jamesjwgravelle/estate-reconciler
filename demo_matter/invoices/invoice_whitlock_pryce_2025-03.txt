@@ -1,0 +1,13 @@
+INVOICE 2025-0331 - WHITLOCK & PRYCE LLP
+Date: 2025-03-31
+To: Estate of Margaret Ellen Hartwell, c/o Diane Colby, Executor
+For services: 2024-12-01 to 2025-03-31 (not yet paid; after the accounting period)
+
+Date | Timekeeper | Description | Hours | Rate | Amount
+2025-01-08 | JW | Receipt and review of CRA Notice of Assessment; email to executor | 0.40 | 475.00 | 190.00
+2025-02-12 | JW | Correspondence with beneficiary counsel re status of administration | 0.60 | 475.00 | 285.00
+2025-03-04 | LC | Update estate ledger; file maintenance | 2.00 | 210.00 | 420.00
+
+Fees: $895.00
+HST (13%): $116.35
+Total due: $1,011.35

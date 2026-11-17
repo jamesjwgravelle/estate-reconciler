@@ -16,12 +16,13 @@ from .models import Evidence, TextDoc
 # Document types we know how to recognise, both as produced documents and as references in letters.
 DOC_TYPES: dict[str, tuple[str, re.Pattern]] = {
     "will": ("the Will", re.compile(r"\blast will\b|\bcopy of the will\b", re.I)),
-    "t3_return": ("T3 trust return(s)", re.compile(r"\bT3\b|\btrust (income tax )?returns?\b", re.I)),
+    "t3_return": ("T3 trust returns", re.compile(r"\bT3\b|\btrust (income tax )?returns?\b", re.I)),
     "notice_of_assessment": ("CRA Notice of Assessment", re.compile(r"\bnotices? of assessment\b", re.I)),
     "clearance_certificate": ("CRA Clearance Certificate", re.compile(r"\bclearance certificate\b", re.I)),
     "inventory": ("inventory of estate assets", re.compile(r"\binventory\b", re.I)),
     "appraisal": ("property appraisal", re.compile(r"\bappraisal\b", re.I)),
     "statement_of_accounts": ("statement of accounts", re.compile(r"\bstatement of accounts\b", re.I)),
+    "legal_invoice": ("legal invoice", re.compile(r"\binvoice\b", re.I)),
     "bank_records": ("bank records", re.compile(r"\bbank (statements?|records)\b", re.I)),
 }
 

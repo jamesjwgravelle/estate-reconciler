@@ -16,6 +16,8 @@ import csv
 from decimal import Decimal
 from pathlib import Path
 
+DATASET_VERSION = "3"   # bump when the planted problems or decoys change; eval runs record it
+
 
 def build(root: str | Path, seeded: bool = True, decoys: bool = True) -> None:
     root = Path(root)
@@ -39,8 +41,12 @@ def build(root: str | Path, seeded: bool = True, decoys: bool = True) -> None:
         *([("D-11", "2023-08-14", "disbursement", "House cleanout - Brightway Haulage", "3600.00")] if D else []),
         ("D-06", "2023-09-18", "disbursement", "Legal fees - Whitlock & Pryce LLP", "14690.00"),
         ("D-07", "2023-11-06", "disbursement", "Accounting fees - Brandt CPA", "2825.00"),
+        # the will leaves $10,000 to the library; seeded: it is never paid
+        *([] if S else [("D-13", "2023-12-01", "disbursement", "Bequest - Kingston Public Library Foundation", "10000.00")]),
         ("D-08", "2024-01-15", "disbursement", "Interim distribution to beneficiaries", "150000.00"),
         ("D-09", "2024-03-01", "disbursement", "Executor compensation", comp),
+        # seeded: a penalty for filing the trust return late, paid from the estate
+        *([("D-12", "2024-03-15", "disbursement", "CRA - late-filing penalty, T3 return", "350.00")] if S else []),
     ]
     with (root / "accounts.csv").open("w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
@@ -82,6 +88,8 @@ def build(root: str | Path, seeded: bool = True, decoys: bool = True) -> None:
         ("2024-01-15", "WIRE OUT BENEFICIARY DISTRIBUTION", "150000.00", ""),
         ("2024-02-28", "CANADA REVENUE AGENCY REFUND", "", "1942.67"),
         ("2024-03-01", "TRANSFER TO D COLBY EXECUTOR COMPENSATION", comp, ""),
+        *([("2024-03-15", "CANADA REVENUE AGENCY T3 PENALTY", "350.00", "")] if S else
+          [("2023-12-01", "CHQ 108 KINGSTON PUBLIC LIBRARY FDN", "10000.00", "")]),
     ]
     bank.sort(key=lambda r: r[0])
     balance = Decimal(0)
@@ -96,6 +104,7 @@ def build(root: str | Path, seeded: bool = True, decoys: bool = True) -> None:
         "LAST WILL AND TESTAMENT OF MARGARET ELLEN HARTWELL\n"
         "Date: 2019-06-03\n\n"
         "I appoint my niece, Diane Colby, as Executor and Trustee of my Estate.\n"
+        "I give the sum of $10,000 to the Kingston Public Library Foundation.\n"
         "I direct that the residue of my Estate be divided equally among my grandchildren.\n",
         encoding="utf-8")
 
@@ -141,6 +150,89 @@ def build(root: str | Path, seeded: bool = True, decoys: bool = True) -> None:
         "An interim distribution of $150,000 was made in January 2024.\n"
         "The Executor is still waiting on the Notice of Assessment from CRA and cannot apply for the clearance certificate until it arrives.\n",
         encoding="utf-8")
+    _invoices(root, S, D)
+    _routine_letters(root)
+
+
+def _invoice(path: Path, number: str, dated: str, period: str, entries: list[tuple], fees: Decimal | None = None) -> None:
+    """Write one invoice. `fees` overrides the billed fees (to plant an invoice that does not add up)."""
+    summed = sum(Decimal(e[3]) * Decimal(e[4]) for e in entries)
+    fees = summed if fees is None else fees
+    tax = (fees * Decimal("0.13")).quantize(Decimal("0.01"))
+    lines = [f"INVOICE {number} - WHITLOCK & PRYCE LLP", f"Date: {dated}",
+             "To: Estate of Margaret Ellen Hartwell, c/o Diane Colby, Executor", f"For services: {period}", "",
+             "Date | Timekeeper | Description | Hours | Rate | Amount"]
+    for d, who, desc, hours, rate in entries:
+        lines.append(f"{d} | {who} | {desc} | {Decimal(hours):.2f} | {Decimal(rate):.2f} | {Decimal(hours) * Decimal(rate):.2f}")
+    lines += ["", f"Fees: ${fees:,.2f}", f"HST (13%): ${tax:,.2f}", f"Total due: ${fees + tax:,.2f}"]
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _invoices(root: Path, S: bool, D: bool) -> None:
+    (root / "invoices").mkdir(exist_ok=True)
+    JW, LC = "450", "200"
+    first = [
+        ("2023-03-10", "JW", "Initial meeting with executor; review will", "2.0", JW),
+        ("2023-03-22", "LC", "Prepare probate application", "4.0", LC),
+        ("2023-04-04", "JW", "Review and file probate application", "1.5", JW),
+        # seeded: fewer hours here, so the entries no longer add up to the fees billed
+        ("2023-04-18", "JW", "Estate administration advice; correspondence with insurers and bank", "1.5" if S else "5.0", JW),
+        ("2023-05-02", "JW", "Letter to beneficiary counsel enclosing will", "0.5", JW),
+        ("2023-06-14", "JW", "Telephone call with realtor re listing of 14 Alder Lane", "0.5", JW),
+        # seeded: the same entry billed twice, with no credit
+        *([("2023-06-14", "JW", "Telephone call with realtor re listing of 14 Alder Lane", "0.5", JW)] if S else []),
+        ("2023-07-11", "JW", "Review offer; draft amendments to agreement of purchase and sale", "1.0", JW),
+        # decoy: billed twice, but credited at the foot of the invoice
+        *([("2023-07-11", "JW", "Review offer; draft amendments to agreement of purchase and sale", "1.0", JW)] if D else []),
+        # seeded: advice to the executor in her own interest, on the estate's invoice
+        *([("2023-07-25", "JW", "Advise executor personally re beneficiary's complaint about delay", "2.0", JW)] if S else []),
+        ("2023-08-01", "JW", "Negotiations with purchaser's solicitor", "4.5", JW),
+        ("2023-08-22", "JW", "Review title and requisitions", "3.0", JW),
+        ("2023-09-05", "LC", "Statement of adjustments; trust ledger", "5.5", LC),
+        ("2023-09-12", "LC", "Prepare closing documents", "6.0", LC),
+        ("2023-09-15", "JW", "Attend closing of sale of 14 Alder Lane", "4.0", JW),
+        *([("2023-09-16", "JW", "Courtesy credit: entry of 2023-07-11 recorded twice", "-1.0", JW)] if D else []),
+    ]
+    # The estate paid $14,690.00 (accounts entry D-06): fees of $13,000.00 plus HST.
+    _invoice(root / "invoices" / "invoice_whitlock_pryce_2023-09.txt", "2023-0917", "2023-09-16",
+             "2023-03-10 to 2023-09-16", first, fees=Decimal("13000.00"))
+
+    second = [
+        # seeded: the firm bills for reviewing the notice five months before writing that it had not arrived
+        ("2025-01-08", "JW", "Receipt and review of CRA Notice of Assessment; email to executor" if S
+         else "Telephone call to CRA re status of assessment", "0.4", "475"),
+        ("2025-02-12", "JW", "Correspondence with beneficiary counsel re status of administration", "0.6", "475"),
+        ("2025-03-04", "LC", "Update estate ledger; file maintenance", "2.0", "210"),
+    ]
+    _invoice(root / "invoices" / "invoice_whitlock_pryce_2025-03.txt", "2025-0331", "2025-03-31",
+             "2024-12-01 to 2025-03-31 (not yet paid; after the accounting period)", second)
+
+
+def _routine_letters(root: Path) -> None:
+    """Ordinary correspondence with nothing wrong in it. Present in every version of the file,
+    so the clean control also proves that routine letters raise nothing."""
+    ours = "From: Adeyemi Law (counsel to a beneficiary)\nTo: Whitlock & Pryce LLP (counsel to the Executor)\nRe: Estate of Margaret Ellen Hartwell\n\n"
+    theirs = "From: Whitlock & Pryce LLP (counsel to the Executor)\nTo: Adeyemi Law (counsel to a beneficiary)\nRe: Estate of Margaret Ellen Hartwell\n\n"
+    letters = [
+        ("2023-03-15", theirs, "We act for Diane Colby, the Executor named in the late Mrs. Hartwell's testamentary documents.\n"
+                               "An application for probate is being prepared. We will write again once probate has been granted.\n"),
+        ("2023-03-24", ours, "We act for Thomas Hartwell, a grandchild of the deceased and a residuary beneficiary.\n"
+                             "Please keep us informed of the progress of the administration.\n"),
+        ("2023-04-21", theirs, "Probate was granted on 5 April 2023.\n"
+                               "The Executor has opened an estate account and is gathering in the assets.\n"),
+        ("2023-06-28", theirs, "The property at 14 Alder Lane was listed for sale on 26 June 2023.\n"
+                               "Repairs to the roof were completed before the listing.\n"),
+        ("2023-08-30", ours, "Thank you for your letter of 28 June.\n"
+                             "Please confirm the expected closing date for the sale of the property.\n"),
+        ("2023-09-20", theirs, "The sale of 14 Alder Lane closed on 15 September 2023 as scheduled.\n"
+                               "We will report on the proceeds shortly.\n"),
+        ("2024-01-18", theirs, "The interim distribution was paid on 15 January 2024.\n"
+                               "Please have your client sign and return the form of receipt.\n"),
+        ("2024-06-12", ours, "We have had no update since January.\n"
+                             "Please advise when the estate's tax filings are expected to be complete.\n"),
+    ]
+    for dated, header, body in letters:
+        (root / "correspondence" / f"{dated}_letter.txt").write_text(f"Date: {dated}\n" + header + body, encoding="utf-8")
 
 
 if __name__ == "__main__":

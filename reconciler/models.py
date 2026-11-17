@@ -16,15 +16,27 @@ class Evidence:
 
 @dataclass
 class Finding:
-    type: str       # machine-readable category, e.g. "unsupported_entry"
+    type: str       # machine-readable category; must have an entry in catalog.CATALOG
     key: str        # stable identifier within the type (used by the evals)
     severity: str   # "high" | "medium" | "low"
     title: str
     detail: str
     evidence: list[Evidence] = field(default_factory=list)
+    # Dollars in question, if the finding has a figure. Always positive. Whether it is added
+    # to the report's total is decided per type in catalog.CATALOG, not here.
+    amount: Optional[Decimal] = None
+    # Signed effect on (bank balance - stated balance on hand). Lets the report show that the
+    # individual items add up to the overall gap. None if the finding does not move the balance.
+    balance_effect: Optional[Decimal] = None
+    # One or two sentences a client could read. Falls back to the title if empty.
+    plain: str = ""
 
     def to_dict(self) -> dict:
-        return asdict(self)
+        d = asdict(self)
+        for k in ("amount", "balance_effect"):
+            if d[k] is not None:
+                d[k] = f"{d[k]:.2f}"
+        return d
 
 
 @dataclass

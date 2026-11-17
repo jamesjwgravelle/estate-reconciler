@@ -1,0 +1,3920 @@
+{
+  "model": "qwen3.8",
+  "run_at": "20261117-111403",
+  "config": {
+    "agent": "v6",
+    "dataset": "3",
+    "runs": 1,
+    "verify": false,
+    "reviewer": "same model"
+  },
+  "score": {
+    "real": 17,
+    "decoys": 6,
+    "wrongly_dismissed": [],
+    "decoys_cleared": [
+      [
+        "amount_mismatch",
+        "D-11"
+      ],
+      [
+        "missing_document",
+        "inventory"
+      ],
+      [
+        "undisclosed_transaction",
+        "2023-08-28:1800.00"
+      ],
+      [
+        "undisclosed_transaction",
+        "2023-09-05:1250.00"
+      ],
+      [
+        "undisclosed_transaction",
+        "2023-09-07:1250.00"
+      ],
+      [
+        "duplicate_time_entry",
+        "2023-07-11:JW:450.00"
+      ]
+    ],
+    "decoys_not_cleared": [],
+    "sent_to_human": 4,
+    "overridden_by_guardrail": [
+      [
+        "avoidable_cost",
+        "D-12",
+        "routed to a lawyer by rule: this turns on judgment, not on the documents"
+      ],
+      [
+        "compensation_review",
+        "D-09",
+        "routed to a lawyer by rule: this turns on judgment, not on the documents"
+      ],
+      [
+        "personal_legal_fees",
+        "2023-07-25:JW:900.00",
+        "routed to a lawyer by rule: this turns on judgment, not on the documents"
+      ]
+    ],
+    "precision_after": 1.0
+  },
+  "investigations": [
+    {
+      "type": "amount_mismatch",
+      "key": "D-01",
+      "verdict": "stands",
+      "explanation": "The accounts record a single $11,200 funeral disbursement (D-01) while the bank shows only one $9,200 cheque to Hillcrest (line 3). No second payment to Hillcrest, no $2,000 transaction, no reversal, and no invoice or receipt in the file account for the $2,000 difference.",
+      "citations": [
+        {
+          "doc": "accounts.csv",
+          "locator": "row D-01",
+          "quote": "2023-03-28 Funeral - Hillcrest Funeral Home $11,200.00 (disbursement)"
+        },
+        {
+          "doc": "bank_statement.csv",
+          "locator": "line 3",
+          "quote": "2023-03-29 CHQ 101 HILLCREST FUNERAL HOME $9,200.00 (disbursement)"
+        }
+      ],
+      "rejected_citations": [],
+      "note": "",
+      "trace": [
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "bank",
+            "text": "HILLCREST"
+          },
+          "result": [
+            {
+              "ref": "bank_statement.csv :: line 3",
+              "date": "2023-03-29",
+              "description": "CHQ 101 HILLCREST FUNERAL HOME",
+              "amount": "9200.00",
+              "direction": "money out"
+            }
+          ]
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "accounts",
+            "text": "Hillcrest"
+          },
+          "result": [
+            {
+              "ref": "accounts.csv :: row D-01",
+              "date": "2023-03-28",
+              "description": "Funeral - Hillcrest Funeral Home",
+              "amount": "11200.00",
+              "direction": "money out"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "Hillcrest Funeral Home $2,000"
+          },
+          "result": [
+            {
+              "ref": "accounts.csv :: row D-01",
+              "text": "2023-03-28 Funeral - Hillcrest Funeral Home $11,200.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 3",
+              "text": "2023-03-29 CHQ 101 HILLCREST FUNERAL HOME $9,200.00 (disbursement)"
+            },
+            {
+              "ref": "schedule_a_assets.txt :: line 6",
+              "text": "2. Life insurance policy, Lakeshore Mutual, $25,000.00"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 24",
+              "text": "Fees: $13,000.00"
+            },
+            {
+              "ref": "bank_statement.csv :: line 19",
+              "text": "2023-12-19 CHQ 105 BRANDT CPA $2,825.00 (disbursement)"
+            },
+            {
+              "ref": "accounts.csv :: row D-07",
+              "text": "2023-11-06 Accounting fees - Brandt CPA $2,825.00 (disbursement)"
+            }
+          ]
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "bank",
+            "date_from": "2023-03-25",
+            "date_to": "2023-04-05"
+          },
+          "result": [
+            {
+              "ref": "bank_statement.csv :: line 3",
+              "date": "2023-03-29",
+              "description": "CHQ 101 HILLCREST FUNERAL HOME",
+              "amount": "9200.00",
+              "direction": "money out"
+            },
+            {
+              "ref": "bank_statement.csv :: line 4",
+              "date": "2023-04-05",
+              "description": "CHQ 102 MINISTER OF FINANCE PROBATE",
+              "amount": "2105.00",
+              "direction": "money out"
+            }
+          ]
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "accounts",
+            "date_from": "2023-03-25",
+            "date_to": "2023-04-05"
+          },
+          "result": [
+            {
+              "ref": "accounts.csv :: row D-01",
+              "date": "2023-03-28",
+              "description": "Funeral - Hillcrest Funeral Home",
+              "amount": "11200.00",
+              "direction": "money out"
+            },
+            {
+              "ref": "accounts.csv :: row D-02",
+              "date": "2023-04-05",
+              "description": "Probate fees - Minister of Finance",
+              "amount": "2105.00",
+              "direction": "money out"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "funeral invoice receipt 2000"
+          },
+          "result": [
+            {
+              "ref": "accounts.csv :: row D-01",
+              "text": "2023-03-28 Funeral - Hillcrest Funeral Home $11,200.00 (disbursement)"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 1",
+              "text": "INVOICE 2025-0331 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 1",
+              "text": "INVOICE 2023-0917 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "bank_statement.csv :: line 3",
+              "text": "2023-03-29 CHQ 101 HILLCREST FUNERAL HOME $9,200.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 16",
+              "text": "2023-10-02 DEPOSIT VEHICLE SALE $9,800.00 (receipt)"
+            },
+            {
+              "ref": "correspondence/2024-01-18_letter.txt :: line 7",
+              "text": "Please have your client sign and return the form of receipt."
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "funeral payment second cheque"
+          },
+          "result": [
+            {
+              "ref": "accounts.csv :: row D-01",
+              "text": "2023-03-28 Funeral - Hillcrest Funeral Home $11,200.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 9",
+              "text": "2023-08-02 HYDRO BILL PAYMENT $412.18 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 8",
+              "text": "2023-07-04 CITY OF KINGSTON TAX PAYMENT $3,212.40 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 3",
+              "text": "2023-03-29 CHQ 101 HILLCREST FUNERAL HOME $9,200.00 (disbursement)"
+            }
+          ]
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "bank",
+            "min_amount": 1900,
+            "max_amount": 2100
+          },
+          "result": [
+            {
+              "ref": "bank_statement.csv :: line 21",
+              "date": "2024-02-28",
+              "description": "CANADA REVENUE AGENCY REFUND",
+              "amount": "1942.67",
+              "direction": "money in"
+            }
+          ]
+        }
+      ],
+      "checks": {}
+    },
+    {
+      "type": "amount_mismatch",
+      "key": "D-11",
+      "verdict": "explained",
+      "explanation": "The $3,600 Brightway Haulage payment in the accounts was split across two cheques in the bank record: CHQ 106 \"DEPOSIT\" of $1,800 on 2023-08-14 and CHQ 107 \"BALANCE\" of $1,800 on 2023-08-28. Together they total $3,600, exactly matching the accounts entry.",
+      "citations": [
+        {
+          "doc": "accounts.csv",
+          "locator": "row D-11",
+          "quote": "2023-08-14 | House cleanout - Brightway Haulage | $3,600.00"
+        },
+        {
+          "doc": "bank_statement.csv",
+          "locator": "line 10",
+          "quote": "2023-08-14 CHQ 106 BRIGHTWAY HAULAGE DEPOSIT $1,800.00 (disbursement)"
+        },
+        {
+          "doc": "bank_statement.csv",
+          "locator": "line 11",
+          "quote": "2023-08-28 CHQ 107 BRIGHTWAY HAULAGE BALANCE $1,800.00 (disbursement)"
+        }
+      ],
+      "rejected_citations": [],
+      "note": "",
+      "trace": [
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "Brightway Haulage"
+          },
+          "result": [
+            {
+              "ref": "accounts.csv :: row D-11",
+              "text": "2023-08-14 House cleanout - Brightway Haulage $3,600.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 11",
+              "text": "2023-08-28 CHQ 107 BRIGHTWAY HAULAGE BALANCE $1,800.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 10",
+              "text": "2023-08-14 CHQ 106 BRIGHTWAY HAULAGE DEPOSIT $1,800.00 (disbursement)"
+            }
+          ]
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "accounts",
+            "text": "Brightway"
+          },
+          "result": [
+            {
+              "ref": "accounts.csv :: row D-11",
+              "date": "2023-08-14",
+              "description": "House cleanout - Brightway Haulage",
+              "amount": "3600.00",
+              "direction": "money out"
+            }
+          ]
+        },
+        {
+          "tool": "add_amounts",
+          "args": {
+            "amounts": [
+              1800,
+              1800
+            ]
+          },
+          "result": {
+            "total": "3600.00"
+          }
+        }
+      ],
+      "checks": {
+        "runs": [
+          "explained"
+        ]
+      }
+    },
+    {
+      "type": "arithmetic_error",
+      "key": "total_disbursements",
+      "verdict": "stands",
+      "explanation": "The accounts summary states total disbursements of $235,224.58, but the itemised entries sum to $230,224.58, a $5,000 gap. The bank statement shows a $5,000 e-transfer to D Colby (the executor) on 2023-10-20 that does not appear in the executor's itemised accounts (accounts.csv). This is not an innocent explanation for the arithmetic discrepancy; it is a separate concern (a payment to the executor herself that is absent from the estate's itemised disbursements). The file does not contain a document, reversal, or split-payment entry that accounts for the $5,000 difference between the stated total and the itemised sum.",
+      "citations": [
+        {
+          "doc": "accounts_summary.txt",
+          "locator": "line 4",
+          "quote": "Total disbursements: $235,224.58"
+        },
+        {
+          "doc": "bank_statement.csv",
+          "locator": "line 17",
+          "quote": "2023-10-20 E-TRANSFER TO D COLBY $5,000.00 (disbursement)"
+        }
+      ],
+      "rejected_citations": [],
+      "note": "",
+      "trace": [
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "total disbursements itemised entries accounts summary"
+          },
+          "result": [
+            {
+              "ref": "accounts_summary.txt :: line 4",
+              "text": "Total disbursements: $235,224.58"
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 6",
+              "text": "A statement of accounts is enclosed."
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 13",
+              "text": "Total due: $1,011.35"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 26",
+              "text": "Total due: $14,690.00"
+            },
+            {
+              "ref": "accounts_summary.txt :: line 3",
+              "text": "Total receipts: $483,552.89"
+            }
+          ]
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "accounts",
+            "min_amount": 4999,
+            "max_amount": 5001
+          },
+          "result": []
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "disbursements itemised list of payments"
+          },
+          "result": [
+            {
+              "ref": "accounts_summary.txt :: line 4",
+              "text": "Total disbursements: $235,224.58"
+            },
+            {
+              "ref": "correspondence/2023-05-02_letter.txt :: line 9",
+              "text": "The Executor intends to list the property for sale this summer."
+            },
+            {
+              "ref": "schedule_a_assets.txt :: line 1",
+              "text": "SCHEDULE A - ASSETS OF THE ESTATE AT DATE OF DEATH"
+            },
+            {
+              "ref": "correspondence/2023-03-24_letter.txt :: line 7",
+              "text": "Please keep us informed of the progress of the administration."
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 6",
+              "text": "A statement of accounts is enclosed."
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 4",
+              "text": "Re: Estate of Margaret Ellen Hartwell"
+            }
+          ]
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "bank",
+            "min_amount": 4999,
+            "max_amount": 5001
+          },
+          "result": [
+            {
+              "ref": "bank_statement.csv :: line 17",
+              "date": "2023-10-20",
+              "description": "E-TRANSFER TO D COLBY",
+              "amount": "5000.00",
+              "direction": "money out"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "accounts_summary disbursement entries itemised"
+          },
+          "result": [
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 6",
+              "text": "A statement of accounts is enclosed."
+            },
+            {
+              "ref": "bank_statement.csv :: line 18",
+              "text": "2023-10-31 MONTHLY ACCOUNT FEE $4.95 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 9",
+              "text": "2023-08-02 HYDRO BILL PAYMENT $412.18 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 6",
+              "text": "2023-04-28 MONTHLY ACCOUNT FEE $4.95 (disbursement)"
+            },
+            {
+              "ref": "accounts.csv :: row D-09",
+              "text": "2024-03-01 Executor compensation $32,000.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 7",
+              "text": "2023-05-12 PAD NORTHGATE INSURANCE $1,380.00 (disbursement)"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "D Colby e-transfer"
+          },
+          "result": [
+            {
+              "ref": "bank_statement.csv :: line 17",
+              "text": "2023-10-20 E-TRANSFER TO D COLBY $5,000.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 22",
+              "text": "2024-03-01 TRANSFER TO D COLBY EXECUTOR COMPENSATION $32,000.00 (disbursement)"
+            },
+            {
+              "ref": "schedule_a_assets.txt :: line 3",
+              "text": "Prepared by the Executor, Diane Colby"
+            },
+            {
+              "ref": "bank_statement.csv :: line 2",
+              "text": "2023-03-20 TRANSFER IN CLOSED ACCT M HARTWELL $48,310.22 (receipt)"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 3",
+              "text": "To: Estate of Margaret Ellen Hartwell, c/o Diane Colby, Executor"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 3",
+              "text": "To: Estate of Margaret Ellen Hartwell, c/o Diane Colby, Executor"
+            }
+          ]
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "accounts",
+            "text": "Colby"
+          },
+          "result": []
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "accounts.csv disbursement entries list"
+          },
+          "result": [
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 6",
+              "text": "A statement of accounts is enclosed."
+            },
+            {
+              "ref": "correspondence/2023-05-02_letter.txt :: line 9",
+              "text": "The Executor intends to list the property for sale this summer."
+            },
+            {
+              "ref": "bank_statement.csv :: line 18",
+              "text": "2023-10-31 MONTHLY ACCOUNT FEE $4.95 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 9",
+              "text": "2023-08-02 HYDRO BILL PAYMENT $412.18 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 6",
+              "text": "2023-04-28 MONTHLY ACCOUNT FEE $4.95 (disbursement)"
+            },
+            {
+              "ref": "accounts.csv :: row D-09",
+              "text": "2024-03-01 Executor compensation $32,000.00 (disbursement)"
+            }
+          ]
+        }
+      ],
+      "checks": {}
+    },
+    {
+      "type": "balance_mismatch",
+      "key": "balance_on_hand",
+      "verdict": "needs_human",
+      "explanation": "The $10,450.00 gap between the stated balance on hand ($248,328.31) and the bank closing balance ($258,768.41) is exactly the sum of two separate unexplained items: the funeral is recorded at $11,200.00 in the accounts but only $9,200.00 appears on the bank statement (a $2,000.00 difference), and the $8,450.00 Keller Contracting roof repair appears in the accounts but has no corresponding bank transaction. add_amounts confirms 2,000 + 8,450 = 10,450.00, but these are two distinct discrepancies that happen to sum to the total, not a single reconciling entry, so the file does not cleanly explain the mismatch.",
+      "citations": [
+        {
+          "doc": "accounts.csv",
+          "locator": "row D-01",
+          "quote": "2023-03-28 Funeral - Hillcrest Funeral Home $11,200.00 (disbursement)"
+        },
+        {
+          "doc": "bank_statement.csv",
+          "locator": "line 3",
+          "quote": "2023-03-29 CHQ 101 HILLCREST FUNERAL HOME $9,200.00 (disbursement)"
+        },
+        {
+          "doc": "accounts.csv",
+          "locator": "row D-04",
+          "quote": "2023-06-20 Roof repair - Keller Contracting $8,450.00 (disbursement)"
+        },
+        {
+          "doc": "accounts_summary.txt",
+          "locator": "line 5",
+          "quote": "Balance on hand: $248,328.31"
+        },
+        {
+          "doc": "bank_statement.csv",
+          "locator": "last line",
+          "quote": "closing balance $258,768.41"
+        }
+      ],
+      "rejected_citations": [],
+      "note": "",
+      "trace": [
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "10450 10,450"
+          },
+          "result": [
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 7",
+              "text": "2023-03-10 | JW | Initial meeting with executor; review will | 2.00 | 450.00 | 900.00"
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 1",
+              "text": "Date: 2025-06-10"
+            },
+            {
+              "ref": "correspondence/2023-10-05_letter.txt :: line 1",
+              "text": "Date: 2023-10-05"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 4",
+              "text": "For services: 2023-03-10 to 2023-09-16"
+            },
+            {
+              "ref": "bank_statement.csv :: line 18",
+              "text": "2023-10-31 MONTHLY ACCOUNT FEE $4.95 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 16",
+              "text": "2023-10-02 DEPOSIT VEHICLE SALE $9,800.00 (receipt)"
+            }
+          ]
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "bank",
+            "min_amount": 10000,
+            "max_amount": 11000
+          },
+          "result": []
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "accounts",
+            "min_amount": 10000,
+            "max_amount": 11000
+          },
+          "result": []
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "balance on hand summary deposit not recorded"
+          },
+          "result": [
+            {
+              "ref": "accounts_summary.txt :: line 5",
+              "text": "Balance on hand: $248,328.31"
+            },
+            {
+              "ref": "cra_notice_of_assessment_2023.txt :: line 6",
+              "text": "Balance owing: $0.00"
+            },
+            {
+              "ref": "bank_statement.csv :: line 16",
+              "text": "2023-10-02 DEPOSIT VEHICLE SALE $9,800.00 (receipt)"
+            },
+            {
+              "ref": "schedule_a_assets.txt :: line 5",
+              "text": "1. Chequing account, closing balance $48,310.22"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 4",
+              "text": "For services: 2024-12-01 to 2025-03-31 (not yet paid; after the accounting period)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 5",
+              "text": "2023-04-12 DEPOSIT LAKESHORE MUTUAL LIFE $25,000.00 (receipt)"
+            }
+          ]
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "bank",
+            "min_amount": 5000
+          },
+          "result": [
+            {
+              "ref": "bank_statement.csv :: line 2",
+              "date": "2023-03-20",
+              "description": "TRANSFER IN CLOSED ACCT M HARTWELL",
+              "amount": "48310.22",
+              "direction": "money in"
+            },
+            {
+              "ref": "bank_statement.csv :: line 3",
+              "date": "2023-03-29",
+              "description": "CHQ 101 HILLCREST FUNERAL HOME",
+              "amount": "9200.00",
+              "direction": "money out"
+            },
+            {
+              "ref": "bank_statement.csv :: line 5",
+              "date": "2023-04-12",
+              "description": "DEPOSIT LAKESHORE MUTUAL LIFE",
+              "amount": "25000.00",
+              "direction": "money in"
+            },
+            {
+              "ref": "bank_statement.csv :: line 14",
+              "date": "2023-09-15",
+              "description": "WIRE IN WHITLOCK PRYCE TRUST - ALDER LANE",
+              "amount": "398500.00",
+              "direction": "money in"
+            },
+            {
+              "ref": "bank_statement.csv :: line 15",
+              "date": "2023-09-19",
+              "description": "CHQ 104 WHITLOCK PRYCE LLP",
+              "amount": "14690.00",
+              "direction": "money out"
+            },
+            {
+              "ref": "bank_statement.csv :: line 16",
+              "date": "2023-10-02",
+              "description": "DEPOSIT VEHICLE SALE",
+              "amount": "9800.00",
+              "direction": "money in"
+            },
+            {
+              "ref": "bank_statement.csv :: line 17",
+              "date": "2023-10-20",
+              "description": "E-TRANSFER TO D COLBY",
+              "amount": "5000.00",
+              "direction": "money out"
+            },
+            {
+              "ref": "bank_statement.csv :: line 20",
+              "date": "2024-01-15",
+              "description": "WIRE OUT BENEFICIARY DISTRIBUTION",
+              "amount": "150000.00",
+              "direction": "money out"
+            },
+            {
+              "ref": "bank_statement.csv :: line 22",
+              "date": "2024-03-01",
+              "description": "TRANSFER TO D COLBY EXECUTOR COMPENSATION",
+              "amount": "32000.00",
+              "direction": "money out"
+            }
+          ]
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "accounts",
+            "min_amount": 5000
+          },
+          "result": [
+            {
+              "ref": "accounts.csv :: row R-01",
+              "date": "2023-03-20",
+              "description": "Transfer in - deceased's chequing account closing balance",
+              "amount": "48310.22",
+              "direction": "money in"
+            },
+            {
+              "ref": "accounts.csv :: row R-02",
+              "date": "2023-04-11",
+              "description": "Life insurance proceeds - Lakeshore Mutual",
+              "amount": "25000.00",
+              "direction": "money in"
+            },
+            {
+              "ref": "accounts.csv :: row R-03",
+              "date": "2023-09-15",
+              "description": "Sale of 14 Alder Lane - net proceeds",
+              "amount": "398500.00",
+              "direction": "money in"
+            },
+            {
+              "ref": "accounts.csv :: row R-04",
+              "date": "2023-10-02",
+              "description": "Sale of vehicle - 2016 Subaru",
+              "amount": "9800.00",
+              "direction": "money in"
+            },
+            {
+              "ref": "accounts.csv :: row D-01",
+              "date": "2023-03-28",
+              "description": "Funeral - Hillcrest Funeral Home",
+              "amount": "11200.00",
+              "direction": "money out"
+            },
+            {
+              "ref": "accounts.csv :: row D-04",
+              "date": "2023-06-20",
+              "description": "Roof repair - Keller Contracting",
+              "amount": "8450.00",
+              "direction": "money out"
+            },
+            {
+              "ref": "accounts.csv :: row D-06",
+              "date": "2023-09-18",
+              "description": "Legal fees - Whitlock & Pryce LLP",
+              "amount": "14690.00",
+              "direction": "money out"
+            },
+            {
+              "ref": "accounts.csv :: row D-08",
+              "date": "2024-01-15",
+              "description": "Interim distribution to beneficiaries",
+              "amount": "150000.00",
+              "direction": "money out"
+            },
+            {
+              "ref": "accounts.csv :: row D-09",
+              "date": "2024-03-01",
+              "description": "Executor compensation",
+              "amount": "32000.00",
+              "direction": "money out"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "bank statement full transactions 2023 2024"
+          },
+          "result": [
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 6",
+              "text": "A statement of accounts is enclosed."
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 19",
+              "text": "2023-09-05 | LC | Statement of adjustments; trust ledger | 5.50 | 200.00 | 1100.00"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 10",
+              "text": "2023-04-18 | JW | Estate administration advice; correspondence with insurers and bank | 1.50 | 450.00 | 675.00"
+            },
+            {
+              "ref": "correspondence/2024-06-12_letter.txt :: line 1",
+              "text": "Date: 2024-06-12"
+            },
+            {
+              "ref": "correspondence/2024-01-18_letter.txt :: line 1",
+              "text": "Date: 2024-01-18"
+            },
+            {
+              "ref": "cra_notice_of_assessment_2023.txt :: line 2",
+              "text": "Date issued: 2024-12-17"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "accounts ledger all rows disbursements receipts"
+          },
+          "result": [
+            {
+              "ref": "accounts_summary.txt :: line 4",
+              "text": "Total disbursements: $235,224.58"
+            },
+            {
+              "ref": "accounts_summary.txt :: line 3",
+              "text": "Total receipts: $483,552.89"
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 6",
+              "text": "A statement of accounts is enclosed."
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 9",
+              "text": "2025-03-04 | LC | Update estate ledger; file maintenance | 2.00 | 210.00 | 420.00"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 19",
+              "text": "2023-09-05 | LC | Statement of adjustments; trust ledger | 5.50 | 200.00 | 1100.00"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "bank statement line 19 21 23 closing balance"
+          },
+          "result": [
+            {
+              "ref": "schedule_a_assets.txt :: line 5",
+              "text": "1. Chequing account, closing balance $48,310.22"
+            },
+            {
+              "ref": "correspondence/2023-04-21_letter.txt :: line 1",
+              "text": "Date: 2023-04-21"
+            },
+            {
+              "ref": "accounts.csv :: row R-01",
+              "text": "2023-03-20 Transfer in - deceased's chequing account closing balance $48,310.22 (receipt)"
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 6",
+              "text": "A statement of accounts is enclosed."
+            },
+            {
+              "ref": "cra_notice_of_assessment_2023.txt :: line 6",
+              "text": "Balance owing: $0.00"
+            },
+            {
+              "ref": "accounts_summary.txt :: line 5",
+              "text": "Balance on hand: $248,328.31"
+            }
+          ]
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "bank",
+            "max_amount": 5000
+          },
+          "result": [
+            {
+              "ref": "bank_statement.csv :: line 4",
+              "date": "2023-04-05",
+              "description": "CHQ 102 MINISTER OF FINANCE PROBATE",
+              "amount": "2105.00",
+              "direction": "money out"
+            },
+            {
+              "ref": "bank_statement.csv :: line 6",
+              "date": "2023-04-28",
+              "description": "MONTHLY ACCOUNT FEE",
+              "amount": "4.95",
+              "direction": "money out"
+            },
+            {
+              "ref": "bank_statement.csv :: line 7",
+              "date": "2023-05-12",
+              "description": "PAD NORTHGATE INSURANCE",
+              "amount": "1380.00",
+              "direction": "money out"
+            },
+            {
+              "ref": "bank_statement.csv :: line 8",
+              "date": "2023-07-04",
+              "description": "CITY OF KINGSTON TAX PAYMENT",
+              "amount": "3212.40",
+              "direction": "money out"
+            },
+            {
+              "ref": "bank_statement.csv :: line 9",
+              "date": "2023-08-02",
+              "description": "HYDRO BILL PAYMENT",
+              "amount": "412.18",
+              "direction": "money out"
+            },
+            {
+              "ref": "bank_statement.csv :: line 10",
+              "date": "2023-08-14",
+              "description": "CHQ 106 BRIGHTWAY HAULAGE DEPOSIT",
+              "amount": "1800.00",
+              "direction": "money out"
+            },
+            {
+              "ref": "bank_statement.csv :: line 11",
+              "date": "2023-08-28",
+              "description": "CHQ 107 BRIGHTWAY HAULAGE BALANCE",
+              "amount": "1800.00",
+              "direction": "money out"
+            },
+            {
+              "ref": "bank_statement.csv :: line 12",
+              "date": "2023-09-05",
+              "description": "WIRE OUT REF 77812",
+              "amount": "1250.00",
+              "direction": "money out"
+            },
+            {
+              "ref": "bank_statement.csv :: line 13",
+              "date": "2023-09-07",
+              "description": "REVERSAL WIRE OUT REF 77812",
+              "amount": "1250.00",
+              "direction": "money in"
+            },
+            {
+              "ref": "bank_statement.csv :: line 17",
+              "date": "2023-10-20",
+              "description": "E-TRANSFER TO D COLBY",
+              "amount": "5000.00",
+              "direction": "money out"
+            },
+            {
+              "ref": "bank_statement.csv :: line 18",
+              "date": "2023-10-31",
+              "description": "MONTHLY ACCOUNT FEE",
+              "amount": "4.95",
+              "direction": "money out"
+            },
+            {
+              "ref": "bank_statement.csv :: line 19",
+              "date": "2023-12-19",
+              "description": "CHQ 105 BRANDT CPA",
+              "amount": "2825.00",
+              "direction": "money out"
+            },
+            {
+              "ref": "bank_statement.csv :: line 21",
+              "date": "2024-02-28",
+              "description": "CANADA REVENUE AGENCY REFUND",
+              "amount": "1942.67",
+              "direction": "money in"
+            },
+            {
+              "ref": "bank_statement.csv :: line 23",
+              "date": "2024-03-15",
+              "description": "CANADA REVENUE AGENCY T3 PENALTY",
+              "amount": "350.00",
+              "direction": "money out"
+            }
+          ]
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "accounts",
+            "max_amount": 5000
+          },
+          "result": [
+            {
+              "ref": "accounts.csv :: row R-05",
+              "date": "2024-02-28",
+              "description": "CRA refund - terminal return",
+              "amount": "1942.67",
+              "direction": "money in"
+            },
+            {
+              "ref": "accounts.csv :: row D-02",
+              "date": "2023-04-05",
+              "description": "Probate fees - Minister of Finance",
+              "amount": "2105.00",
+              "direction": "money out"
+            },
+            {
+              "ref": "accounts.csv :: row D-03",
+              "date": "2023-05-12",
+              "description": "Property insurance - 14 Alder Lane",
+              "amount": "1380.00",
+              "direction": "money out"
+            },
+            {
+              "ref": "accounts.csv :: row D-05",
+              "date": "2023-07-03",
+              "description": "Property taxes - City of Kingston",
+              "amount": "3212.40",
+              "direction": "money out"
+            },
+            {
+              "ref": "accounts.csv :: row D-10",
+              "date": "2023-08-01",
+              "description": "Utilities - final hydro account",
+              "amount": "412.18",
+              "direction": "money out"
+            },
+            {
+              "ref": "accounts.csv :: row D-11",
+              "date": "2023-08-14",
+              "description": "House cleanout - Brightway Haulage",
+              "amount": "3600.00",
+              "direction": "money out"
+            },
+            {
+              "ref": "accounts.csv :: row D-07",
+              "date": "2023-11-06",
+              "description": "Accounting fees - Brandt CPA",
+              "amount": "2825.00",
+              "direction": "money out"
+            },
+            {
+              "ref": "accounts.csv :: row D-12",
+              "date": "2024-03-15",
+              "description": "CRA - late-filing penalty, T3 return",
+              "amount": "350.00",
+              "direction": "money out"
+            }
+          ]
+        },
+        {
+          "tool": "add_amounts",
+          "args": {
+            "amounts": [
+              2000,
+              8450
+            ]
+          },
+          "result": {
+            "total": "10450.00"
+          }
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "Keller roof repair"
+          },
+          "result": [
+            {
+              "ref": "accounts.csv :: row D-04",
+              "text": "2023-06-20 Roof repair - Keller Contracting $8,450.00 (disbursement)"
+            },
+            {
+              "ref": "correspondence/2023-06-28_letter.txt :: line 7",
+              "text": "Repairs to the roof were completed before the listing."
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "funeral Hillcrest 11200 9200"
+          },
+          "result": [
+            {
+              "ref": "accounts.csv :: row D-01",
+              "text": "2023-03-28 Funeral - Hillcrest Funeral Home $11,200.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 3",
+              "text": "2023-03-29 CHQ 101 HILLCREST FUNERAL HOME $9,200.00 (disbursement)"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "Keller Contracting roof invoice"
+          },
+          "result": [
+            {
+              "ref": "accounts.csv :: row D-04",
+              "text": "2023-06-20 Roof repair - Keller Contracting $8,450.00 (disbursement)"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 1",
+              "text": "INVOICE 2025-0331 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 1",
+              "text": "INVOICE 2023-0917 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "correspondence/2023-06-28_letter.txt :: line 7",
+              "text": "Repairs to the roof were completed before the listing."
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "funeral balance 2000 personal payment"
+          },
+          "result": [
+            {
+              "ref": "accounts.csv :: row D-01",
+              "text": "2023-03-28 Funeral - Hillcrest Funeral Home $11,200.00 (disbursement)"
+            },
+            {
+              "ref": "cra_notice_of_assessment_2023.txt :: line 6",
+              "text": "Balance owing: $0.00"
+            },
+            {
+              "ref": "bank_statement.csv :: line 9",
+              "text": "2023-08-02 HYDRO BILL PAYMENT $412.18 (disbursement)"
+            },
+            {
+              "ref": "accounts_summary.txt :: line 5",
+              "text": "Balance on hand: $248,328.31"
+            },
+            {
+              "ref": "bank_statement.csv :: line 8",
+              "text": "2023-07-04 CITY OF KINGSTON TAX PAYMENT $3,212.40 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 3",
+              "text": "2023-03-29 CHQ 101 HILLCREST FUNERAL HOME $9,200.00 (disbursement)"
+            }
+          ]
+        }
+      ],
+      "checks": {}
+    },
+    {
+      "type": "billing_contradiction",
+      "key": "notice_of_assessment",
+      "verdict": "stands",
+      "explanation": "The file contains a single CRA Notice of Assessment (tax year 2023, issued 2024-12-17). The Whitlock & Pryce invoice dated 2025-03-31 records a 2025-01-08 entry for \"Receipt and review of CRA Notice of Assessment; email to executor\" at $190.00. Yet the 2025-06-10 letter from the same firm states the Executor is \"still waiting on the Notice of Assessment from CRA.\" No credit note, reversal, correction, or other document in the file reconciles the billed receipt with the executor's stated non-receipt. The contradiction is unexplained.",
+      "citations": [
+        {
+          "doc": "cra_notice_of_assessment_2023.txt",
+          "locator": "line 2",
+          "quote": "Date issued: 2024-12-17"
+        },
+        {
+          "doc": "invoices/invoice_whitlock_pryce_2025-03.txt",
+          "locator": "line 7",
+          "quote": "2025-01-08 | JW | Receipt and review of CRA Notice of Assessment; email to executor | 0.40 | 475.00 | 190.00"
+        },
+        {
+          "doc": "correspondence/2025-06-10_letter.txt",
+          "locator": "line 8",
+          "quote": "The Executor is still waiting on the Notice of Assessment from CRA and cannot apply for the clearance certificate until it arrives."
+        }
+      ],
+      "rejected_citations": [],
+      "note": "",
+      "trace": [
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "CRA Notice of Assessment"
+          },
+          "result": [
+            {
+              "ref": "cra_notice_of_assessment_2023.txt :: line 1",
+              "text": "NOTICE OF ASSESSMENT - T3 TRUST INCOME TAX"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 7",
+              "text": "2025-01-08 | JW | Receipt and review of CRA Notice of Assessment; email to executor | 0.40 | 475.00 | 190.00"
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 8",
+              "text": "The Executor is still waiting on the Notice of Assessment from CRA and cannot apply for the clearance certificate until it arrives."
+            },
+            {
+              "ref": "accounts.csv :: row R-05",
+              "text": "2024-02-28 CRA refund - terminal return $1,942.67 (receipt)"
+            },
+            {
+              "ref": "accounts.csv :: row D-12",
+              "text": "2024-03-15 CRA - late-filing penalty, T3 return $350.00 (disbursement)"
+            },
+            {
+              "ref": "schedule_a_assets.txt :: line 1",
+              "text": "SCHEDULE A - ASSETS OF THE ESTATE AT DATE OF DEATH"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "whitlock pryce invoice correction reversal"
+          },
+          "result": [
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 1",
+              "text": "INVOICE 2025-0331 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 1",
+              "text": "INVOICE 2023-0917 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 2",
+              "text": "From: Whitlock & Pryce LLP (counsel to the Executor)"
+            },
+            {
+              "ref": "correspondence/2024-06-12_letter.txt :: line 3",
+              "text": "To: Whitlock & Pryce LLP (counsel to the Executor)"
+            },
+            {
+              "ref": "correspondence/2024-01-18_letter.txt :: line 2",
+              "text": "From: Whitlock & Pryce LLP (counsel to the Executor)"
+            },
+            {
+              "ref": "correspondence/2023-10-05_letter.txt :: line 2",
+              "text": "From: Whitlock & Pryce LLP (counsel to the Executor)"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "cra_notice_of_assessment_2023"
+          },
+          "result": [
+            {
+              "ref": "cra_notice_of_assessment_2023.txt :: line 1",
+              "text": "NOTICE OF ASSESSMENT - T3 TRUST INCOME TAX"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 7",
+              "text": "2025-01-08 | JW | Receipt and review of CRA Notice of Assessment; email to executor | 0.40 | 475.00 | 190.00"
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 8",
+              "text": "The Executor is still waiting on the Notice of Assessment from CRA and cannot apply for the clearance certificate until it arrives."
+            },
+            {
+              "ref": "accounts.csv :: row R-05",
+              "text": "2024-02-28 CRA refund - terminal return $1,942.67 (receipt)"
+            },
+            {
+              "ref": "accounts.csv :: row D-12",
+              "text": "2024-03-15 CRA - late-filing penalty, T3 return $350.00 (disbursement)"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 21",
+              "text": "2023-09-15 | JW | Attend closing of sale of 14 Alder Lane | 4.00 | 450.00 | 1800.00"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "invoice whitlock pryce 2025-03 full"
+          },
+          "result": [
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 1",
+              "text": "INVOICE 2025-0331 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 1",
+              "text": "INVOICE 2023-0917 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 2",
+              "text": "Date: 2025-03-31"
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 2",
+              "text": "From: Whitlock & Pryce LLP (counsel to the Executor)"
+            },
+            {
+              "ref": "correspondence/2024-06-12_letter.txt :: line 3",
+              "text": "To: Whitlock & Pryce LLP (counsel to the Executor)"
+            },
+            {
+              "ref": "correspondence/2024-01-18_letter.txt :: line 2",
+              "text": "From: Whitlock & Pryce LLP (counsel to the Executor)"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "cra notice of assessment 2023 date year"
+          },
+          "result": [
+            {
+              "ref": "cra_notice_of_assessment_2023.txt :: line 1",
+              "text": "NOTICE OF ASSESSMENT - T3 TRUST INCOME TAX"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 7",
+              "text": "2025-01-08 | JW | Receipt and review of CRA Notice of Assessment; email to executor | 0.40 | 475.00 | 190.00"
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 8",
+              "text": "The Executor is still waiting on the Notice of Assessment from CRA and cannot apply for the clearance certificate until it arrives."
+            },
+            {
+              "ref": "cra_notice_of_assessment_2023.txt :: line 5",
+              "text": "Tax year: 2023"
+            },
+            {
+              "ref": "correspondence/2023-10-05_letter.txt :: line 8",
+              "text": "An interim distribution is expected in the new year."
+            },
+            {
+              "ref": "schedule_a_assets.txt :: line 2",
+              "text": "Date: 2023-04-20"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "clearance certificate CRA"
+          },
+          "result": [
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 8",
+              "text": "The Executor is still waiting on the Notice of Assessment from CRA and cannot apply for the clearance certificate until it arrives."
+            },
+            {
+              "ref": "accounts.csv :: row R-05",
+              "text": "2024-02-28 CRA refund - terminal return $1,942.67 (receipt)"
+            },
+            {
+              "ref": "accounts.csv :: row D-12",
+              "text": "2024-03-15 CRA - late-filing penalty, T3 return $350.00 (disbursement)"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 7",
+              "text": "2025-01-08 | JW | Receipt and review of CRA Notice of Assessment; email to executor | 0.40 | 475.00 | 190.00"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "credit note correction reversal invoice whitlock"
+          },
+          "result": [
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 1",
+              "text": "INVOICE 2025-0331 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 1",
+              "text": "INVOICE 2023-0917 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "bank_statement.csv :: line 13",
+              "text": "2023-09-07 REVERSAL WIRE OUT REF 77812 $1,250.00 (receipt)"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 22",
+              "text": "2023-09-16 | JW | Courtesy credit: entry of 2023-07-11 recorded twice | -1.00 | 450.00 | -450.00"
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 2",
+              "text": "From: Whitlock & Pryce LLP (counsel to the Executor)"
+            },
+            {
+              "ref": "correspondence/2024-06-12_letter.txt :: line 3",
+              "text": "To: Whitlock & Pryce LLP (counsel to the Executor)"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "notice of assessment 2024 2025"
+          },
+          "result": [
+            {
+              "ref": "cra_notice_of_assessment_2023.txt :: line 1",
+              "text": "NOTICE OF ASSESSMENT - T3 TRUST INCOME TAX"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 7",
+              "text": "2025-01-08 | JW | Receipt and review of CRA Notice of Assessment; email to executor | 0.40 | 475.00 | 190.00"
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 8",
+              "text": "The Executor is still waiting on the Notice of Assessment from CRA and cannot apply for the clearance certificate until it arrives."
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 4",
+              "text": "For services: 2024-12-01 to 2025-03-31 (not yet paid; after the accounting period)"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 2",
+              "text": "Date: 2025-03-31"
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 1",
+              "text": "Date: 2025-06-10"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "cra notice of assessment 2023 date received"
+          },
+          "result": [
+            {
+              "ref": "cra_notice_of_assessment_2023.txt :: line 1",
+              "text": "NOTICE OF ASSESSMENT - T3 TRUST INCOME TAX"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 7",
+              "text": "2025-01-08 | JW | Receipt and review of CRA Notice of Assessment; email to executor | 0.40 | 475.00 | 190.00"
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 8",
+              "text": "The Executor is still waiting on the Notice of Assessment from CRA and cannot apply for the clearance certificate until it arrives."
+            },
+            {
+              "ref": "correspondence/2023-05-02_letter.txt :: line 8",
+              "text": "We will provide the appraisal of 14 Alder Lane once it is received from the appraiser."
+            },
+            {
+              "ref": "schedule_a_assets.txt :: line 2",
+              "text": "Date: 2023-04-20"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 2",
+              "text": "Date: 2023-09-16"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "whitlock pryce 2025-01-08"
+          },
+          "result": [
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 1",
+              "text": "INVOICE 2025-0331 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 17",
+              "text": "2023-08-01 | JW | Negotiations with purchaser's solicitor | 4.50 | 450.00 | 2025.00"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 7",
+              "text": "2025-01-08 | JW | Receipt and review of CRA Notice of Assessment; email to executor | 0.40 | 475.00 | 190.00"
+            },
+            {
+              "ref": "accounts.csv :: row D-10",
+              "text": "2023-08-01 Utilities - final hydro account $412.18 (disbursement)"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 1",
+              "text": "INVOICE 2023-0917 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 2",
+              "text": "From: Whitlock & Pryce LLP (counsel to the Executor)"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "2024-06-12 letter CRA notice"
+          },
+          "result": [
+            {
+              "ref": "correspondence/2024-06-12_letter.txt :: line 1",
+              "text": "Date: 2024-06-12"
+            },
+            {
+              "ref": "cra_notice_of_assessment_2023.txt :: line 2",
+              "text": "Date issued: 2024-12-17"
+            },
+            {
+              "ref": "accounts.csv :: row R-05",
+              "text": "2024-02-28 CRA refund - terminal return $1,942.67 (receipt)"
+            },
+            {
+              "ref": "accounts.csv :: row D-12",
+              "text": "2024-03-15 CRA - late-filing penalty, T3 return $350.00 (disbursement)"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 7",
+              "text": "2025-01-08 | JW | Receipt and review of CRA Notice of Assessment; email to executor | 0.40 | 475.00 | 190.00"
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 8",
+              "text": "The Executor is still waiting on the Notice of Assessment from CRA and cannot apply for the clearance certificate until it arrives."
+            }
+          ]
+        }
+      ],
+      "checks": {}
+    },
+    {
+      "type": "missing_document",
+      "key": "appraisal",
+      "verdict": "stands",
+      "explanation": "The 2023-05-02 letter promises to provide the appraisal of 14 Alder Lane once received from the appraiser, but no appraisal or valuation document appears anywhere in the production. Schedule A lists the property as \"to be valued,\" and the property was subsequently sold (net proceeds $398,500 per accounts and bank statement), but the appraisal document itself was never produced. No other document in the file accounts for or substitutes for the missing appraisal.",
+      "citations": [
+        {
+          "doc": "correspondence/2023-05-02_letter.txt",
+          "locator": "line 8",
+          "quote": "We will provide the appraisal of 14 Alder Lane once it is received from the appraiser."
+        },
+        {
+          "doc": "schedule_a_assets.txt",
+          "locator": "line 7",
+          "quote": "3. House and lot at 14 Alder Lane, Kingston (to be valued)"
+        }
+      ],
+      "rejected_citations": [],
+      "note": "",
+      "trace": [
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "appraisal 14 Alder Lane"
+          },
+          "result": [
+            {
+              "ref": "correspondence/2023-05-02_letter.txt :: line 8",
+              "text": "We will provide the appraisal of 14 Alder Lane once it is received from the appraiser."
+            },
+            {
+              "ref": "schedule_a_assets.txt :: line 7",
+              "text": "3. House and lot at 14 Alder Lane, Kingston (to be valued)"
+            },
+            {
+              "ref": "accounts.csv :: row D-03",
+              "text": "2023-05-12 Property insurance - 14 Alder Lane $1,380.00 (disbursement)"
+            },
+            {
+              "ref": "correspondence/2023-09-20_letter.txt :: line 6",
+              "text": "The sale of 14 Alder Lane closed on 15 September 2023 as scheduled."
+            },
+            {
+              "ref": "correspondence/2023-06-28_letter.txt :: line 6",
+              "text": "The property at 14 Alder Lane was listed for sale on 26 June 2023."
+            },
+            {
+              "ref": "accounts.csv :: row R-03",
+              "text": "2023-09-15 Sale of 14 Alder Lane - net proceeds $398,500.00 (receipt)"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "property valuation Alder Lane"
+          },
+          "result": [
+            {
+              "ref": "accounts.csv :: row D-03",
+              "text": "2023-05-12 Property insurance - 14 Alder Lane $1,380.00 (disbursement)"
+            },
+            {
+              "ref": "correspondence/2023-06-28_letter.txt :: line 6",
+              "text": "The property at 14 Alder Lane was listed for sale on 26 June 2023."
+            },
+            {
+              "ref": "correspondence/2023-10-05_letter.txt :: line 6",
+              "text": "The property at 14 Alder Lane has sold, and the sale generated net proceeds of $412,000 to the Estate."
+            },
+            {
+              "ref": "schedule_a_assets.txt :: line 7",
+              "text": "3. House and lot at 14 Alder Lane, Kingston (to be valued)"
+            },
+            {
+              "ref": "correspondence/2023-09-20_letter.txt :: line 6",
+              "text": "The sale of 14 Alder Lane closed on 15 September 2023 as scheduled."
+            },
+            {
+              "ref": "bank_statement.csv :: line 14",
+              "text": "2023-09-15 WIRE IN WHITLOCK PRYCE TRUST - ALDER LANE $398,500.00 (receipt)"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "appraiser valuation report"
+          },
+          "result": [
+            {
+              "ref": "correspondence/2023-09-20_letter.txt :: line 7",
+              "text": "We will report on the proceeds shortly."
+            },
+            {
+              "ref": "correspondence/2023-05-02_letter.txt :: line 8",
+              "text": "We will provide the appraisal of 14 Alder Lane once it is received from the appraiser."
+            }
+          ]
+        }
+      ],
+      "checks": {}
+    },
+    {
+      "type": "missing_document",
+      "key": "inventory",
+      "verdict": "explained",
+      "explanation": "The correspondence of 2023-05-02 refers to an inventory of what the deceased owned to be provided under separate cover. The file contains schedule_a_assets.txt, titled \"SCHEDULE A - ASSETS OF THE ESTATE AT DATE OF DEATH\", which lists the deceased's assets: (1) Chequing account $48,310.22, (2) Life insurance policy $25,000.00, (3) House and lot at 14 Alder Lane, Kingston, (4) 2016 Subaru, and (5) Household contents. This is the inventory referred to in the correspondence, present in the production under a different name.",
+      "citations": [
+        {
+          "doc": "schedule_a_assets.txt",
+          "locator": "line 1",
+          "quote": "SCHEDULE A - ASSETS OF THE ESTATE AT DATE OF DEATH"
+        },
+        {
+          "doc": "schedule_a_assets.txt",
+          "locator": "line 5",
+          "quote": "1. Chequing account, closing balance $48,310.22"
+        },
+        {
+          "doc": "schedule_a_assets.txt",
+          "locator": "line 6",
+          "quote": "2. Life insurance policy, Lakeshore Mutual, $25,000.00"
+        },
+        {
+          "doc": "schedule_a_assets.txt",
+          "locator": "line 7",
+          "quote": "3. House and lot at 14 Alder Lane, Kingston (to be valued)"
+        },
+        {
+          "doc": "schedule_a_assets.txt",
+          "locator": "line 8",
+          "quote": "4. 2016 Subaru"
+        },
+        {
+          "doc": "schedule_a_assets.txt",
+          "locator": "line 9",
+          "quote": "5. Household contents"
+        },
+        {
+          "doc": "correspondence/2023-05-02_letter.txt",
+          "locator": "line 7",
+          "quote": "An inventory of what the deceased owned will be provided under separate cover."
+        }
+      ],
+      "rejected_citations": [],
+      "note": "",
+      "trace": [
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "inventory estate assets"
+          },
+          "result": [
+            {
+              "ref": "schedule_a_assets.txt :: line 1",
+              "text": "SCHEDULE A - ASSETS OF THE ESTATE AT DATE OF DEATH"
+            },
+            {
+              "ref": "correspondence/2023-04-21_letter.txt :: line 7",
+              "text": "The Executor has opened an estate account and is gathering in the assets."
+            },
+            {
+              "ref": "correspondence/2023-05-02_letter.txt :: line 7",
+              "text": "An inventory of what the deceased owned will be provided under separate cover."
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 4",
+              "text": "Re: Estate of Margaret Ellen Hartwell"
+            },
+            {
+              "ref": "correspondence/2024-06-12_letter.txt :: line 4",
+              "text": "Re: Estate of Margaret Ellen Hartwell"
+            },
+            {
+              "ref": "correspondence/2024-01-18_letter.txt :: line 4",
+              "text": "Re: Estate of Margaret Ellen Hartwell"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "inventory deceased owned"
+          },
+          "result": [
+            {
+              "ref": "correspondence/2023-05-02_letter.txt :: line 7",
+              "text": "An inventory of what the deceased owned will be provided under separate cover."
+            },
+            {
+              "ref": "correspondence/2023-03-24_letter.txt :: line 6",
+              "text": "We act for Thomas Hartwell, a grandchild of the deceased and a residuary beneficiary."
+            },
+            {
+              "ref": "accounts.csv :: row R-01",
+              "text": "2023-03-20 Transfer in - deceased's chequing account closing balance $48,310.22 (receipt)"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "schedule A assets estate date of death"
+          },
+          "result": [
+            {
+              "ref": "schedule_a_assets.txt :: line 1",
+              "text": "SCHEDULE A - ASSETS OF THE ESTATE AT DATE OF DEATH"
+            },
+            {
+              "ref": "correspondence/2023-04-21_letter.txt :: line 7",
+              "text": "The Executor has opened an estate account and is gathering in the assets."
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 6",
+              "text": "A statement of accounts is enclosed."
+            },
+            {
+              "ref": "correspondence/2023-03-24_letter.txt :: line 6",
+              "text": "We act for Thomas Hartwell, a grandchild of the deceased and a residuary beneficiary."
+            },
+            {
+              "ref": "correspondence/2023-05-02_letter.txt :: line 6",
+              "text": "Enclosed please find a copy of the Will."
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 4",
+              "text": "Re: Estate of Margaret Ellen Hartwell"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "schedule A assets list property bank investments"
+          },
+          "result": [
+            {
+              "ref": "schedule_a_assets.txt :: line 1",
+              "text": "SCHEDULE A - ASSETS OF THE ESTATE AT DATE OF DEATH"
+            },
+            {
+              "ref": "correspondence/2023-05-02_letter.txt :: line 9",
+              "text": "The Executor intends to list the property for sale this summer."
+            },
+            {
+              "ref": "correspondence/2023-04-21_letter.txt :: line 7",
+              "text": "The Executor has opened an estate account and is gathering in the assets."
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 10",
+              "text": "2023-04-18 | JW | Estate administration advice; correspondence with insurers and bank | 1.50 | 450.00 | 675.00"
+            },
+            {
+              "ref": "correspondence/2023-03-24_letter.txt :: line 6",
+              "text": "We act for Thomas Hartwell, a grandchild of the deceased and a residuary beneficiary."
+            },
+            {
+              "ref": "correspondence/2023-08-30_letter.txt :: line 7",
+              "text": "Please confirm the expected closing date for the sale of the property."
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "schedule A assets chequing property investments total"
+          },
+          "result": [
+            {
+              "ref": "schedule_a_assets.txt :: line 1",
+              "text": "SCHEDULE A - ASSETS OF THE ESTATE AT DATE OF DEATH"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 13",
+              "text": "Total due: $1,011.35"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 26",
+              "text": "Total due: $14,690.00"
+            },
+            {
+              "ref": "accounts_summary.txt :: line 4",
+              "text": "Total disbursements: $235,224.58"
+            },
+            {
+              "ref": "accounts_summary.txt :: line 3",
+              "text": "Total receipts: $483,552.89"
+            },
+            {
+              "ref": "schedule_a_assets.txt :: line 5",
+              "text": "1. Chequing account, closing balance $48,310.22"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "schedule A assets 1 2 3 4 5 chequing property"
+          },
+          "result": [
+            {
+              "ref": "schedule_a_assets.txt :: line 1",
+              "text": "SCHEDULE A - ASSETS OF THE ESTATE AT DATE OF DEATH"
+            },
+            {
+              "ref": "schedule_a_assets.txt :: line 5",
+              "text": "1. Chequing account, closing balance $48,310.22"
+            },
+            {
+              "ref": "accounts.csv :: row D-05",
+              "text": "2023-07-03 Property taxes - City of Kingston $3,212.40 (disbursement)"
+            },
+            {
+              "ref": "schedule_a_assets.txt :: line 9",
+              "text": "5. Household contents"
+            },
+            {
+              "ref": "accounts.csv :: row D-03",
+              "text": "2023-05-12 Property insurance - 14 Alder Lane $1,380.00 (disbursement)"
+            },
+            {
+              "ref": "schedule_a_assets.txt :: line 8",
+              "text": "4. 2016 Subaru"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "schedule A assets 2 3 4 5 6 household contents Subaru"
+          },
+          "result": [
+            {
+              "ref": "schedule_a_assets.txt :: line 9",
+              "text": "5. Household contents"
+            },
+            {
+              "ref": "schedule_a_assets.txt :: line 1",
+              "text": "SCHEDULE A - ASSETS OF THE ESTATE AT DATE OF DEATH"
+            },
+            {
+              "ref": "schedule_a_assets.txt :: line 8",
+              "text": "4. 2016 Subaru"
+            },
+            {
+              "ref": "correspondence/2023-04-21_letter.txt :: line 6",
+              "text": "Probate was granted on 5 April 2023."
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 20",
+              "text": "2023-09-12 | LC | Prepare closing documents | 6.00 | 200.00 | 1200.00"
+            },
+            {
+              "ref": "accounts.csv :: row R-04",
+              "text": "2023-10-02 Sale of vehicle - 2016 Subaru $9,800.00 (receipt)"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "schedule A assets 2 3 investments GIC"
+          },
+          "result": [
+            {
+              "ref": "schedule_a_assets.txt :: line 1",
+              "text": "SCHEDULE A - ASSETS OF THE ESTATE AT DATE OF DEATH"
+            },
+            {
+              "ref": "correspondence/2023-04-21_letter.txt :: line 7",
+              "text": "The Executor has opened an estate account and is gathering in the assets."
+            },
+            {
+              "ref": "accounts.csv :: row D-11",
+              "text": "2023-08-14 House cleanout - Brightway Haulage $3,600.00 (disbursement)"
+            },
+            {
+              "ref": "schedule_a_assets.txt :: line 7",
+              "text": "3. House and lot at 14 Alder Lane, Kingston (to be valued)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 8",
+              "text": "2023-07-04 CITY OF KINGSTON TAX PAYMENT $3,212.40 (disbursement)"
+            },
+            {
+              "ref": "accounts.csv :: row D-05",
+              "text": "2023-07-03 Property taxes - City of Kingston $3,212.40 (disbursement)"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "schedule A assets 2 investments"
+          },
+          "result": [
+            {
+              "ref": "schedule_a_assets.txt :: line 1",
+              "text": "SCHEDULE A - ASSETS OF THE ESTATE AT DATE OF DEATH"
+            },
+            {
+              "ref": "correspondence/2023-04-21_letter.txt :: line 7",
+              "text": "The Executor has opened an estate account and is gathering in the assets."
+            },
+            {
+              "ref": "schedule_a_assets.txt :: line 6",
+              "text": "2. Life insurance policy, Lakeshore Mutual, $25,000.00"
+            },
+            {
+              "ref": "correspondence/2023-03-24_letter.txt :: line 6",
+              "text": "We act for Thomas Hartwell, a grandchild of the deceased and a residuary beneficiary."
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 6",
+              "text": "A statement of accounts is enclosed."
+            },
+            {
+              "ref": "bank_statement.csv :: line 19",
+              "text": "2023-12-19 CHQ 105 BRANDT CPA $2,825.00 (disbursement)"
+            }
+          ]
+        }
+      ],
+      "checks": {
+        "runs": [
+          "explained"
+        ]
+      }
+    },
+    {
+      "type": "missing_document",
+      "key": "t3_return",
+      "verdict": "stands",
+      "explanation": "The file contains a CRA Notice of Assessment for the 2023 T3 trust income tax and references to a late-filing penalty and a CRA refund, but no actual T3 trust return document. The Notice of Assessment is a CRA-issued document, not the return itself, so it does not satisfy the Executor's undertaking to provide the T3 trust returns. The referenced document is not in the production.",
+      "citations": [
+        {
+          "doc": "cra_notice_of_assessment_2023.txt",
+          "locator": "line 1",
+          "quote": "NOTICE OF ASSESSMENT - T3 TRUST INCOME TAX"
+        },
+        {
+          "doc": "cra_notice_of_assessment_2023.txt",
+          "locator": "line 5",
+          "quote": "Tax year: 2023"
+        },
+        {
+          "doc": "correspondence/2023-10-05_letter.txt",
+          "locator": "line 7",
+          "quote": "The Executor will provide the T3 trust returns for 2023 together with her accounting."
+        },
+        {
+          "doc": "accounts.csv",
+          "locator": "row D-12",
+          "quote": "2024-03-15 CRA - late-filing penalty, T3 return $350.00 (disbursement)"
+        },
+        {
+          "doc": "accounts.csv",
+          "locator": "row R-05",
+          "quote": "2024-02-28 CRA refund - terminal return $1,942.67 (receipt)"
+        }
+      ],
+      "rejected_citations": [],
+      "note": "",
+      "trace": [
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "T3 trust return 2023"
+          },
+          "result": [
+            {
+              "ref": "cra_notice_of_assessment_2023.txt :: line 1",
+              "text": "NOTICE OF ASSESSMENT - T3 TRUST INCOME TAX"
+            },
+            {
+              "ref": "accounts.csv :: row D-12",
+              "text": "2024-03-15 CRA - late-filing penalty, T3 return $350.00 (disbursement)"
+            },
+            {
+              "ref": "correspondence/2023-10-05_letter.txt :: line 7",
+              "text": "The Executor will provide the T3 trust returns for 2023 together with her accounting."
+            },
+            {
+              "ref": "correspondence/2024-01-18_letter.txt :: line 7",
+              "text": "Please have your client sign and return the form of receipt."
+            },
+            {
+              "ref": "accounts.csv :: row R-05",
+              "text": "2024-02-28 CRA refund - terminal return $1,942.67 (receipt)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 14",
+              "text": "2023-09-15 WIRE IN WHITLOCK PRYCE TRUST - ALDER LANE $398,500.00 (receipt)"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "trust return T3"
+          },
+          "result": [
+            {
+              "ref": "cra_notice_of_assessment_2023.txt :: line 1",
+              "text": "NOTICE OF ASSESSMENT - T3 TRUST INCOME TAX"
+            },
+            {
+              "ref": "accounts.csv :: row D-12",
+              "text": "2024-03-15 CRA - late-filing penalty, T3 return $350.00 (disbursement)"
+            },
+            {
+              "ref": "correspondence/2023-10-05_letter.txt :: line 7",
+              "text": "The Executor will provide the T3 trust returns for 2023 together with her accounting."
+            },
+            {
+              "ref": "correspondence/2024-01-18_letter.txt :: line 7",
+              "text": "Please have your client sign and return the form of receipt."
+            },
+            {
+              "ref": "accounts.csv :: row R-05",
+              "text": "2024-02-28 CRA refund - terminal return $1,942.67 (receipt)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 23",
+              "text": "2024-03-15 CANADA REVENUE AGENCY T3 PENALTY $350.00 (disbursement)"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "tax return income trust 2023"
+          },
+          "result": [
+            {
+              "ref": "cra_notice_of_assessment_2023.txt :: line 1",
+              "text": "NOTICE OF ASSESSMENT - T3 TRUST INCOME TAX"
+            },
+            {
+              "ref": "cra_notice_of_assessment_2023.txt :: line 5",
+              "text": "Tax year: 2023"
+            },
+            {
+              "ref": "bank_statement.csv :: line 8",
+              "text": "2023-07-04 CITY OF KINGSTON TAX PAYMENT $3,212.40 (disbursement)"
+            },
+            {
+              "ref": "correspondence/2024-01-18_letter.txt :: line 7",
+              "text": "Please have your client sign and return the form of receipt."
+            },
+            {
+              "ref": "accounts.csv :: row R-05",
+              "text": "2024-02-28 CRA refund - terminal return $1,942.67 (receipt)"
+            },
+            {
+              "ref": "correspondence/2023-10-05_letter.txt :: line 7",
+              "text": "The Executor will provide the T3 trust returns for 2023 together with her accounting."
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "cra notice of assessment T3 trust income tax"
+          },
+          "result": [
+            {
+              "ref": "cra_notice_of_assessment_2023.txt :: line 1",
+              "text": "NOTICE OF ASSESSMENT - T3 TRUST INCOME TAX"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 7",
+              "text": "2025-01-08 | JW | Receipt and review of CRA Notice of Assessment; email to executor | 0.40 | 475.00 | 190.00"
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 8",
+              "text": "The Executor is still waiting on the Notice of Assessment from CRA and cannot apply for the clearance certificate until it arrives."
+            },
+            {
+              "ref": "accounts.csv :: row D-12",
+              "text": "2024-03-15 CRA - late-filing penalty, T3 return $350.00 (disbursement)"
+            },
+            {
+              "ref": "correspondence/2023-10-05_letter.txt :: line 7",
+              "text": "The Executor will provide the T3 trust returns for 2023 together with her accounting."
+            },
+            {
+              "ref": "cra_notice_of_assessment_2023.txt :: line 5",
+              "text": "Tax year: 2023"
+            }
+          ]
+        }
+      ],
+      "checks": {}
+    },
+    {
+      "type": "timeline_contradiction",
+      "key": "notice_of_assessment",
+      "verdict": "stands",
+      "explanation": "The CRA Notice of Assessment is dated 2024-12-17, and the Whitlock Pryce invoice of 2025-01-08 records \"Receipt and review of CRA Notice of Assessment; email to executor,\" confirming the notice had been received and reviewed well before the 2025-06-10 letter. The letter's statement that the Executor is \"still waiting on the Notice of Assessment from CRA\" is therefore contradicted by the file, not explained by it.",
+      "citations": [
+        {
+          "doc": "cra_notice_of_assessment_2023.txt",
+          "locator": "line 2",
+          "quote": "Date issued: 2024-12-17"
+        },
+        {
+          "doc": "invoices/invoice_whitlock_pryce_2025-03.txt",
+          "locator": "line 7",
+          "quote": "2025-01-08 | JW | Receipt and review of CRA Notice of Assessment; email to executor | 0.40 | 475.00 | 190.00"
+        },
+        {
+          "doc": "correspondence/2025-06-10_letter.txt",
+          "locator": "line 8",
+          "quote": "The Executor is still waiting on the Notice of Assessment from CRA and cannot apply for the clearance certificate until it arrives."
+        }
+      ],
+      "rejected_citations": [],
+      "note": "",
+      "trace": [
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "CRA Notice of Assessment received delivery"
+          },
+          "result": [
+            {
+              "ref": "cra_notice_of_assessment_2023.txt :: line 1",
+              "text": "NOTICE OF ASSESSMENT - T3 TRUST INCOME TAX"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 7",
+              "text": "2025-01-08 | JW | Receipt and review of CRA Notice of Assessment; email to executor | 0.40 | 475.00 | 190.00"
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 8",
+              "text": "The Executor is still waiting on the Notice of Assessment from CRA and cannot apply for the clearance certificate until it arrives."
+            },
+            {
+              "ref": "correspondence/2023-05-02_letter.txt :: line 8",
+              "text": "We will provide the appraisal of 14 Alder Lane once it is received from the appraiser."
+            },
+            {
+              "ref": "accounts.csv :: row R-05",
+              "text": "2024-02-28 CRA refund - terminal return $1,942.67 (receipt)"
+            },
+            {
+              "ref": "accounts.csv :: row D-12",
+              "text": "2024-03-15 CRA - late-filing penalty, T3 return $350.00 (disbursement)"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "clearance certificate CRA outstanding waiting"
+          },
+          "result": [
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 8",
+              "text": "The Executor is still waiting on the Notice of Assessment from CRA and cannot apply for the clearance certificate until it arrives."
+            },
+            {
+              "ref": "accounts.csv :: row R-05",
+              "text": "2024-02-28 CRA refund - terminal return $1,942.67 (receipt)"
+            },
+            {
+              "ref": "accounts.csv :: row D-12",
+              "text": "2024-03-15 CRA - late-filing penalty, T3 return $350.00 (disbursement)"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 7",
+              "text": "2025-01-08 | JW | Receipt and review of CRA Notice of Assessment; email to executor | 0.40 | 475.00 | 190.00"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "Notice of Assessment 2024-12-17 date issued"
+          },
+          "result": [
+            {
+              "ref": "cra_notice_of_assessment_2023.txt :: line 2",
+              "text": "Date issued: 2024-12-17"
+            },
+            {
+              "ref": "cra_notice_of_assessment_2023.txt :: line 1",
+              "text": "NOTICE OF ASSESSMENT - T3 TRUST INCOME TAX"
+            },
+            {
+              "ref": "correspondence/2024-06-12_letter.txt :: line 1",
+              "text": "Date: 2024-06-12"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 7",
+              "text": "2025-01-08 | JW | Receipt and review of CRA Notice of Assessment; email to executor | 0.40 | 475.00 | 190.00"
+            },
+            {
+              "ref": "correspondence/2024-01-18_letter.txt :: line 1",
+              "text": "Date: 2024-01-18"
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 8",
+              "text": "The Executor is still waiting on the Notice of Assessment from CRA and cannot apply for the clearance certificate until it arrives."
+            }
+          ]
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "accounts",
+            "text": "CRA"
+          },
+          "result": [
+            {
+              "ref": "accounts.csv :: row R-05",
+              "date": "2024-02-28",
+              "description": "CRA refund - terminal return",
+              "amount": "1942.67",
+              "direction": "money in"
+            },
+            {
+              "ref": "accounts.csv :: row D-12",
+              "date": "2024-03-15",
+              "description": "CRA - late-filing penalty, T3 return",
+              "amount": "350.00",
+              "direction": "money out"
+            }
+          ]
+        }
+      ],
+      "checks": {}
+    },
+    {
+      "type": "undisclosed_transaction",
+      "key": "2023-08-28:1800.00",
+      "verdict": "explained",
+      "explanation": "The accounts record a single $3,600 disbursement to Brightway Haulage on 2023-08-14 (row D-11). The bank shows this paid in two halves: CHQ 106 for $1,800 on 2023-08-14 and CHQ 107 for $1,800 on 2023-08-28. The two bank payments sum exactly to the $3,600 account entry, so the 08-28 movement is the second half of a split payment, not an undisclosed transaction.",
+      "citations": [
+        {
+          "doc": "accounts.csv",
+          "locator": "row D-11",
+          "quote": "2023-08-14 House cleanout - Brightway Haulage $3,600.00 (disbursement)"
+        },
+        {
+          "doc": "bank_statement.csv",
+          "locator": "line 10",
+          "quote": "2023-08-14 CHQ 106 BRIGHTWAY HAULAGE DEPOSIT $1,800.00 (disbursement)"
+        },
+        {
+          "doc": "bank_statement.csv",
+          "locator": "line 11",
+          "quote": "2023-08-28 CHQ 107 BRIGHTWAY HAULAGE BALANCE $1,800.00 (disbursement)"
+        }
+      ],
+      "rejected_citations": [],
+      "note": "",
+      "trace": [
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "BRIGHTWAY HAULAGE"
+          },
+          "result": [
+            {
+              "ref": "accounts.csv :: row D-11",
+              "text": "2023-08-14 House cleanout - Brightway Haulage $3,600.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 11",
+              "text": "2023-08-28 CHQ 107 BRIGHTWAY HAULAGE BALANCE $1,800.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 10",
+              "text": "2023-08-14 CHQ 106 BRIGHTWAY HAULAGE DEPOSIT $1,800.00 (disbursement)"
+            }
+          ]
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "accounts",
+            "date_from": "2023-08-25",
+            "date_to": "2023-08-31"
+          },
+          "result": []
+        },
+        {
+          "tool": "add_amounts",
+          "args": {
+            "amounts": [
+              1800,
+              1800
+            ]
+          },
+          "result": {
+            "total": "3600.00"
+          }
+        }
+      ],
+      "checks": {
+        "runs": [
+          "explained"
+        ]
+      }
+    },
+    {
+      "type": "undisclosed_transaction",
+      "key": "2023-09-05:1250.00",
+      "verdict": "explained",
+      "explanation": "The $1,250 wire out on 2023-09-05 (REF 77812) was reversed on 2023-09-07 for the same amount, so the net movement is $0.00. That is why the executor's accounts show no entry: the disbursement never stuck.",
+      "citations": [
+        {
+          "doc": "bank_statement.csv",
+          "locator": "line 12",
+          "quote": "2023-09-05 WIRE OUT REF 77812 $1,250.00 (disbursement)"
+        },
+        {
+          "doc": "bank_statement.csv",
+          "locator": "line 13",
+          "quote": "2023-09-07 REVERSAL WIRE OUT REF 77812 $1,250.00 (receipt)"
+        }
+      ],
+      "rejected_citations": [],
+      "note": "",
+      "trace": [
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "accounts",
+            "date_from": "2023-09-01",
+            "date_to": "2023-09-10"
+          },
+          "result": []
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "77812 wire 1250"
+          },
+          "result": [
+            {
+              "ref": "bank_statement.csv :: line 12",
+              "text": "2023-09-05 WIRE OUT REF 77812 $1,250.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 13",
+              "text": "2023-09-07 REVERSAL WIRE OUT REF 77812 $1,250.00 (receipt)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 20",
+              "text": "2024-01-15 WIRE OUT BENEFICIARY DISTRIBUTION $150,000.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 14",
+              "text": "2023-09-15 WIRE IN WHITLOCK PRYCE TRUST - ALDER LANE $398,500.00 (receipt)"
+            }
+          ]
+        },
+        {
+          "tool": "add_amounts",
+          "args": {
+            "amounts": [
+              1250,
+              -1250
+            ]
+          },
+          "result": {
+            "total": "0.00"
+          }
+        }
+      ],
+      "checks": {
+        "runs": [
+          "explained"
+        ]
+      }
+    },
+    {
+      "type": "undisclosed_transaction",
+      "key": "2023-09-07:1250.00",
+      "verdict": "explained",
+      "explanation": "The $1,250 bank movement on 2023-09-07 is a reversal of a wire out of the same amount and reference (77812) made on 2023-09-05. The accounts contain no entry for either the original disbursement or the reversal, which is consistent with the two transactions netting to zero. The discrepancy is fully accounted for by the reversal.",
+      "citations": [
+        {
+          "doc": "bank_statement.csv",
+          "locator": "line 12",
+          "quote": "2023-09-05 WIRE OUT REF 77812 $1,250.00 (disbursement)"
+        },
+        {
+          "doc": "bank_statement.csv",
+          "locator": "line 13",
+          "quote": "2023-09-07 REVERSAL WIRE OUT REF 77812 $1,250.00 (receipt)"
+        }
+      ],
+      "rejected_citations": [],
+      "note": "",
+      "trace": [
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "77812 reversal wire 1250"
+          },
+          "result": [
+            {
+              "ref": "bank_statement.csv :: line 13",
+              "text": "2023-09-07 REVERSAL WIRE OUT REF 77812 $1,250.00 (receipt)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 12",
+              "text": "2023-09-05 WIRE OUT REF 77812 $1,250.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 20",
+              "text": "2024-01-15 WIRE OUT BENEFICIARY DISTRIBUTION $150,000.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 14",
+              "text": "2023-09-15 WIRE IN WHITLOCK PRYCE TRUST - ALDER LANE $398,500.00 (receipt)"
+            }
+          ]
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "accounts",
+            "date_from": "2023-09-01",
+            "date_to": "2023-09-15",
+            "min_amount": 1000,
+            "max_amount": 1500
+          },
+          "result": []
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "accounts",
+            "date_from": "2023-09-01",
+            "date_to": "2023-09-15",
+            "text": "77812"
+          },
+          "result": []
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "1250 wire disbursement September 2023"
+          },
+          "result": [
+            {
+              "ref": "bank_statement.csv :: line 12",
+              "text": "2023-09-05 WIRE OUT REF 77812 $1,250.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 20",
+              "text": "2024-01-15 WIRE OUT BENEFICIARY DISTRIBUTION $150,000.00 (disbursement)"
+            },
+            {
+              "ref": "correspondence/2023-09-20_letter.txt :: line 6",
+              "text": "The sale of 14 Alder Lane closed on 15 September 2023 as scheduled."
+            },
+            {
+              "ref": "bank_statement.csv :: line 13",
+              "text": "2023-09-07 REVERSAL WIRE OUT REF 77812 $1,250.00 (receipt)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 14",
+              "text": "2023-09-15 WIRE IN WHITLOCK PRYCE TRUST - ALDER LANE $398,500.00 (receipt)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 18",
+              "text": "2023-10-31 MONTHLY ACCOUNT FEE $4.95 (disbursement)"
+            }
+          ]
+        }
+      ],
+      "checks": {
+        "runs": [
+          "explained"
+        ]
+      }
+    },
+    {
+      "type": "undisclosed_transaction",
+      "key": "2023-10-20:5000.00",
+      "verdict": "stands",
+      "explanation": "The bank statement shows a $5,000 e-transfer to D Colby on 2023-10-20, but no corresponding entry appears in the executor's accounts for that date or amount. Searches for Colby, $5,000, compensation, and advance/reimbursement in the accounts and documents found no matching entry, split payment, reversal, or explanatory document. The only other Colby payment is the $32,000 executor compensation on 2024-03-01, which is a different amount and date and does not account for the $5,000.",
+      "citations": [
+        {
+          "doc": "bank_statement.csv",
+          "locator": "line 17",
+          "quote": "2023-10-20 E-TRANSFER TO D COLBY $5,000.00 (disbursement)"
+        },
+        {
+          "doc": "bank_statement.csv",
+          "locator": "line 22",
+          "quote": "2024-03-01 TRANSFER TO D COLBY EXECUTOR COMPENSATION $32,000.00 (disbursement)"
+        },
+        {
+          "doc": "accounts.csv",
+          "locator": "row D-09",
+          "quote": "2024-03-01 Executor compensation $32,000.00 (disbursement)"
+        }
+      ],
+      "rejected_citations": [],
+      "note": "",
+      "trace": [
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "accounts",
+            "text": "COLBY"
+          },
+          "result": []
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "D COLBY $5,000"
+          },
+          "result": [
+            {
+              "ref": "bank_statement.csv :: line 17",
+              "text": "2023-10-20 E-TRANSFER TO D COLBY $5,000.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 22",
+              "text": "2024-03-01 TRANSFER TO D COLBY EXECUTOR COMPENSATION $32,000.00 (disbursement)"
+            },
+            {
+              "ref": "schedule_a_assets.txt :: line 9",
+              "text": "5. Household contents"
+            },
+            {
+              "ref": "correspondence/2023-04-21_letter.txt :: line 6",
+              "text": "Probate was granted on 5 April 2023."
+            },
+            {
+              "ref": "schedule_a_assets.txt :: line 3",
+              "text": "Prepared by the Executor, Diane Colby"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 24",
+              "text": "Fees: $13,000.00"
+            }
+          ]
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "accounts",
+            "date_from": "2023-10-01",
+            "date_to": "2023-11-30"
+          },
+          "result": [
+            {
+              "ref": "accounts.csv :: row R-04",
+              "date": "2023-10-02",
+              "description": "Sale of vehicle - 2016 Subaru",
+              "amount": "9800.00",
+              "direction": "money in"
+            },
+            {
+              "ref": "accounts.csv :: row D-07",
+              "date": "2023-11-06",
+              "description": "Accounting fees - Brandt CPA",
+              "amount": "2825.00",
+              "direction": "money out"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "$5,000 disbursement executor"
+          },
+          "result": [
+            {
+              "ref": "bank_statement.csv :: line 17",
+              "text": "2023-10-20 E-TRANSFER TO D COLBY $5,000.00 (disbursement)"
+            },
+            {
+              "ref": "accounts.csv :: row D-09",
+              "text": "2024-03-01 Executor compensation $32,000.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 22",
+              "text": "2024-03-01 TRANSFER TO D COLBY EXECUTOR COMPENSATION $32,000.00 (disbursement)"
+            },
+            {
+              "ref": "schedule_a_assets.txt :: line 9",
+              "text": "5. Household contents"
+            },
+            {
+              "ref": "correspondence/2023-04-21_letter.txt :: line 6",
+              "text": "Probate was granted on 5 April 2023."
+            },
+            {
+              "ref": "bank_statement.csv :: line 20",
+              "text": "2024-01-15 WIRE OUT BENEFICIARY DISTRIBUTION $150,000.00 (disbursement)"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "compensation fee $5,000 October 2023"
+          },
+          "result": [
+            {
+              "ref": "accounts.csv :: row D-09",
+              "text": "2024-03-01 Executor compensation $32,000.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 17",
+              "text": "2023-10-20 E-TRANSFER TO D COLBY $5,000.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 22",
+              "text": "2024-03-01 TRANSFER TO D COLBY EXECUTOR COMPENSATION $32,000.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 18",
+              "text": "2023-10-31 MONTHLY ACCOUNT FEE $4.95 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 6",
+              "text": "2023-04-28 MONTHLY ACCOUNT FEE $4.95 (disbursement)"
+            },
+            {
+              "ref": "schedule_a_assets.txt :: line 9",
+              "text": "5. Household contents"
+            }
+          ]
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "accounts",
+            "min_amount": 4900,
+            "max_amount": 5100
+          },
+          "result": []
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "Colby advance reimbursement October"
+          },
+          "result": [
+            {
+              "ref": "schedule_a_assets.txt :: line 3",
+              "text": "Prepared by the Executor, Diane Colby"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 3",
+              "text": "To: Estate of Margaret Ellen Hartwell, c/o Diane Colby, Executor"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 3",
+              "text": "To: Estate of Margaret Ellen Hartwell, c/o Diane Colby, Executor"
+            },
+            {
+              "ref": "bank_statement.csv :: line 17",
+              "text": "2023-10-20 E-TRANSFER TO D COLBY $5,000.00 (disbursement)"
+            },
+            {
+              "ref": "will.txt :: line 4",
+              "text": "I appoint my niece, Diane Colby, as Executor and Trustee of my Estate."
+            },
+            {
+              "ref": "bank_statement.csv :: line 22",
+              "text": "2024-03-01 TRANSFER TO D COLBY EXECUTOR COMPENSATION $32,000.00 (disbursement)"
+            }
+          ]
+        }
+      ],
+      "checks": {}
+    },
+    {
+      "type": "unsupported_entry",
+      "key": "D-04",
+      "verdict": "stands",
+      "explanation": "The accounts entry D-04 ($8,450.00 to Keller Contracting for roof repair, 2023-06-20) has no corresponding movement in the bank record: searches by payee, by amount range, and by date window all return nothing. The only other reference is a letter confirming the roof was repaired, which does not evidence the payment. No voucher, cheque image or other statement in the file supports the entry.",
+      "citations": [
+        {
+          "doc": "accounts.csv",
+          "locator": "row D-04",
+          "quote": "2023-06-20 Roof repair - Keller Contracting $8,450.00 (disbursement)"
+        },
+        {
+          "doc": "correspondence/2023-06-28_letter.txt",
+          "locator": "line 7",
+          "quote": "Repairs to the roof were completed before the listing."
+        }
+      ],
+      "rejected_citations": [],
+      "note": "",
+      "trace": [
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "Keller Contracting roof repair"
+          },
+          "result": [
+            {
+              "ref": "accounts.csv :: row D-04",
+              "text": "2023-06-20 Roof repair - Keller Contracting $8,450.00 (disbursement)"
+            },
+            {
+              "ref": "correspondence/2023-06-28_letter.txt :: line 7",
+              "text": "Repairs to the roof were completed before the listing."
+            }
+          ]
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "bank",
+            "date_from": "2023-06-15",
+            "date_to": "2023-06-25"
+          },
+          "result": []
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "bank",
+            "text": "Keller"
+          },
+          "result": []
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "bank",
+            "min_amount": 8000,
+            "max_amount": 9000
+          },
+          "result": []
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "8450 voucher roof"
+          },
+          "result": [
+            {
+              "ref": "correspondence/2023-06-28_letter.txt :: line 7",
+              "text": "Repairs to the roof were completed before the listing."
+            },
+            {
+              "ref": "accounts.csv :: row D-04",
+              "text": "2023-06-20 Roof repair - Keller Contracting $8,450.00 (disbursement)"
+            }
+          ]
+        }
+      ],
+      "checks": {}
+    },
+    {
+      "type": "avoidable_cost",
+      "key": "D-12",
+      "verdict": "needs_human",
+      "explanation": "",
+      "citations": [],
+      "rejected_citations": [],
+      "note": "routed to a lawyer by rule: this turns on judgment, not on the documents",
+      "trace": [],
+      "checks": {}
+    },
+    {
+      "type": "compensation_review",
+      "key": "D-09",
+      "verdict": "needs_human",
+      "explanation": "",
+      "citations": [],
+      "rejected_citations": [],
+      "note": "routed to a lawyer by rule: this turns on judgment, not on the documents",
+      "trace": [],
+      "checks": {}
+    },
+    {
+      "type": "duplicate_time_entry",
+      "key": "2023-06-14:JW:225.00",
+      "verdict": "stands",
+      "explanation": "The invoice 2023-0917 contains two identical lines for 2023-06-14 (JW, telephone call with realtor re listing of 14 Alder Lane, 0.50 hrs @ $450 = $225.00 each). The only courtesy credit on the invoice is for a different duplicate (entry of 2023-07-11, -$450.00). No other credit memo, correction, or correspondence in the file accounts for the $225.00 overcharge on 2023-06-14.",
+      "citations": [
+        {
+          "doc": "invoices/invoice_whitlock_pryce_2023-09.txt",
+          "locator": "line 12",
+          "quote": "2023-06-14 | JW | Telephone call with realtor re listing of 14 Alder Lane | 0.50 | 450.00 | 225.00"
+        },
+        {
+          "doc": "invoices/invoice_whitlock_pryce_2023-09.txt",
+          "locator": "line 13",
+          "quote": "2023-06-14 | JW | Telephone call with realtor re listing of 14 Alder Lane | 0.50 | 450.00 | 225.00"
+        },
+        {
+          "doc": "invoices/invoice_whitlock_pryce_2023-09.txt",
+          "locator": "line 22",
+          "quote": "2023-09-16 | JW | Courtesy credit: entry of 2023-07-11 recorded twice | -1.00 | 450.00 | -450.00"
+        }
+      ],
+      "rejected_citations": [],
+      "note": "",
+      "trace": [
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "invoice whitlock pryce 2023-09 duplicate correction"
+          },
+          "result": [
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 1",
+              "text": "INVOICE 2023-0917 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 1",
+              "text": "INVOICE 2025-0331 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "bank_statement.csv :: line 15",
+              "text": "2023-09-19 CHQ 104 WHITLOCK PRYCE LLP $14,690.00 (disbursement)"
+            },
+            {
+              "ref": "accounts.csv :: row D-06",
+              "text": "2023-09-18 Legal fees - Whitlock & Pryce LLP $14,690.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 14",
+              "text": "2023-09-15 WIRE IN WHITLOCK PRYCE TRUST - ALDER LANE $398,500.00 (receipt)"
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 2",
+              "text": "From: Whitlock & Pryce LLP (counsel to the Executor)"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "2023-06-14 telephone call realtor Alder Lane"
+          },
+          "result": [
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 13",
+              "text": "2023-06-14 | JW | Telephone call with realtor re listing of 14 Alder Lane | 0.50 | 450.00 | 225.00"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 12",
+              "text": "2023-06-14 | JW | Telephone call with realtor re listing of 14 Alder Lane | 0.50 | 450.00 | 225.00"
+            },
+            {
+              "ref": "accounts.csv :: row D-03",
+              "text": "2023-05-12 Property insurance - 14 Alder Lane $1,380.00 (disbursement)"
+            },
+            {
+              "ref": "correspondence/2023-09-20_letter.txt :: line 6",
+              "text": "The sale of 14 Alder Lane closed on 15 September 2023 as scheduled."
+            },
+            {
+              "ref": "correspondence/2023-06-28_letter.txt :: line 6",
+              "text": "The property at 14 Alder Lane was listed for sale on 26 June 2023."
+            },
+            {
+              "ref": "accounts.csv :: row R-03",
+              "text": "2023-09-15 Sale of 14 Alder Lane - net proceeds $398,500.00 (receipt)"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "credit memo correction duplicate billing error"
+          },
+          "result": [
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 22",
+              "text": "2023-09-16 | JW | Courtesy credit: entry of 2023-07-11 recorded twice | -1.00 | 450.00 | -450.00"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "invoice 2023-0917 total amount"
+          },
+          "result": [
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 1",
+              "text": "INVOICE 2023-0917 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 6",
+              "text": "Date | Timekeeper | Description | Hours | Rate | Amount"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 1",
+              "text": "INVOICE 2025-0331 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 6",
+              "text": "Date | Timekeeper | Description | Hours | Rate | Amount"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 13",
+              "text": "Total due: $1,011.35"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 26",
+              "text": "Total due: $14,690.00"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "2023-06-14 credit courtesy duplicate"
+          },
+          "result": [
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 22",
+              "text": "2023-09-16 | JW | Courtesy credit: entry of 2023-07-11 recorded twice | -1.00 | 450.00 | -450.00"
+            },
+            {
+              "ref": "correspondence/2023-06-28_letter.txt :: line 1",
+              "text": "Date: 2023-06-28"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 13",
+              "text": "2023-06-14 | JW | Telephone call with realtor re listing of 14 Alder Lane | 0.50 | 450.00 | 225.00"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 12",
+              "text": "2023-06-14 | JW | Telephone call with realtor re listing of 14 Alder Lane | 0.50 | 450.00 | 225.00"
+            },
+            {
+              "ref": "will.txt :: line 2",
+              "text": "Date: 2019-06-03"
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 1",
+              "text": "Date: 2025-06-10"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "correspondence duplicate billing 2023-06-14 realtor"
+          },
+          "result": [
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 13",
+              "text": "2023-06-14 | JW | Telephone call with realtor re listing of 14 Alder Lane | 0.50 | 450.00 | 225.00"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 12",
+              "text": "2023-06-14 | JW | Telephone call with realtor re listing of 14 Alder Lane | 0.50 | 450.00 | 225.00"
+            },
+            {
+              "ref": "correspondence/2023-06-28_letter.txt :: line 1",
+              "text": "Date: 2023-06-28"
+            },
+            {
+              "ref": "will.txt :: line 2",
+              "text": "Date: 2019-06-03"
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 1",
+              "text": "Date: 2025-06-10"
+            },
+            {
+              "ref": "correspondence/2024-06-12_letter.txt :: line 1",
+              "text": "Date: 2024-06-12"
+            }
+          ]
+        }
+      ],
+      "checks": {}
+    },
+    {
+      "type": "duplicate_time_entry",
+      "key": "2023-07-11:JW:450.00",
+      "verdict": "explained",
+      "explanation": "The invoice 2023-0917 does list the 2023-07-11 JW entry twice (lines 14 and 15, $450.00 each), but line 22 of the same invoice carries a \"Courtesy credit: entry of 2023-07-11 recorded twice\" of -1.00 hours / -$450.00, which exactly offsets the duplicate. The invoice total due is $14,690.00, matching both the bank disbursement (2023-09-19, $14,690.00) and the accounts entry (D-06, $14,690.00), so the net effect of the repeat is zero.",
+      "citations": [
+        {
+          "doc": "invoices/invoice_whitlock_pryce_2023-09.txt",
+          "locator": "line 14",
+          "quote": "2023-07-11 | JW | Review offer; draft amendments to agreement of purchase and sale | 1.00 | 450.00 | 450.00"
+        },
+        {
+          "doc": "invoices/invoice_whitlock_pryce_2023-09.txt",
+          "locator": "line 15",
+          "quote": "2023-07-11 | JW | Review offer; draft amendments to agreement of purchase and sale | 1.00 | 450.00 | 450.00"
+        },
+        {
+          "doc": "invoices/invoice_whitlock_pryce_2023-09.txt",
+          "locator": "line 22",
+          "quote": "2023-09-16 | JW | Courtesy credit: entry of 2023-07-11 recorded twice | -1.00 | 450.00 | -450.00"
+        },
+        {
+          "doc": "invoices/invoice_whitlock_pryce_2023-09.txt",
+          "locator": "line 26",
+          "quote": "Total due: $14,690.00"
+        },
+        {
+          "doc": "bank_statement.csv",
+          "locator": "line 15",
+          "quote": "2023-09-19 CHQ 104 WHITLOCK PRYCE LLP $14,690.00 (disbursement)"
+        },
+        {
+          "doc": "accounts.csv",
+          "locator": "row D-06",
+          "quote": "2023-09-18 Legal fees - Whitlock & Pryce LLP $14,690.00 (disbursement)"
+        }
+      ],
+      "rejected_citations": [],
+      "note": "",
+      "trace": [
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "invoice whitlock pryce 2023-09 duplicate time entry correction"
+          },
+          "result": [
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 1",
+              "text": "INVOICE 2023-0917 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 1",
+              "text": "INVOICE 2025-0331 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "bank_statement.csv :: line 15",
+              "text": "2023-09-19 CHQ 104 WHITLOCK PRYCE LLP $14,690.00 (disbursement)"
+            },
+            {
+              "ref": "accounts.csv :: row D-06",
+              "text": "2023-09-18 Legal fees - Whitlock & Pryce LLP $14,690.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 14",
+              "text": "2023-09-15 WIRE IN WHITLOCK PRYCE TRUST - ALDER LANE $398,500.00 (receipt)"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 22",
+              "text": "2023-09-16 | JW | Courtesy credit: entry of 2023-07-11 recorded twice | -1.00 | 450.00 | -450.00"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "2023-07-11 JW review offer draft amendments"
+          },
+          "result": [
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 15",
+              "text": "2023-07-11 | JW | Review offer; draft amendments to agreement of purchase and sale | 1.00 | 450.00 | 450.00"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 14",
+              "text": "2023-07-11 | JW | Review offer; draft amendments to agreement of purchase and sale | 1.00 | 450.00 | 450.00"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 22",
+              "text": "2023-09-16 | JW | Courtesy credit: entry of 2023-07-11 recorded twice | -1.00 | 450.00 | -450.00"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 18",
+              "text": "2023-08-22 | JW | Review title and requisitions | 3.00 | 450.00 | 1350.00"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 9",
+              "text": "2023-04-04 | JW | Review and file probate application | 1.50 | 450.00 | 675.00"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 7",
+              "text": "2023-03-10 | JW | Initial meeting with executor; review will | 2.00 | 450.00 | 900.00"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "invoice 2023-0917 total amount due subtotal tax"
+          },
+          "result": [
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 1",
+              "text": "INVOICE 2023-0917 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 13",
+              "text": "Total due: $1,011.35"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 26",
+              "text": "Total due: $14,690.00"
+            },
+            {
+              "ref": "cra_notice_of_assessment_2023.txt :: line 5",
+              "text": "Tax year: 2023"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 6",
+              "text": "Date | Timekeeper | Description | Hours | Rate | Amount"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 1",
+              "text": "INVOICE 2025-0331 - WHITLOCK & PRYCE LLP"
+            }
+          ]
+        }
+      ],
+      "checks": {
+        "runs": [
+          "explained"
+        ]
+      }
+    },
+    {
+      "type": "invoice_arithmetic",
+      "key": "invoices/invoice_whitlock_pryce_2023-09.txt",
+      "verdict": "stands",
+      "explanation": "The invoice (2023-0917) contains a duplicate time entry on 2023-07-11 (lines 14 and 15, both +$450) and a courtesy credit on 2023-09-16 (line 22, -$450) that reverses the duplicate. These two lines net to zero and do not account for the $450 gap between the time-entries total of $12,550 and the fees line of $13,000. No other document, correspondence, or transaction in the file bridges that $450 difference.",
+      "citations": [
+        {
+          "doc": "invoices/invoice_whitlock_pryce_2023-09.txt",
+          "locator": "line 14",
+          "quote": "2023-07-11 | JW | Review offer; draft amendments to agreement of purchase and sale | 1.00 | 450.00 | 450.00"
+        },
+        {
+          "doc": "invoices/invoice_whitlock_pryce_2023-09.txt",
+          "locator": "line 15",
+          "quote": "2023-07-11 | JW | Review offer; draft amendments to agreement of purchase and sale | 1.00 | 450.00 | 450.00"
+        },
+        {
+          "doc": "invoices/invoice_whitlock_pryce_2023-09.txt",
+          "locator": "line 22",
+          "quote": "2023-09-16 | JW | Courtesy credit: entry of 2023-07-11 recorded twice | -1.00 | 450.00 | -450.00"
+        },
+        {
+          "doc": "invoices/invoice_whitlock_pryce_2023-09.txt",
+          "locator": "line 24",
+          "quote": "Fees: $13,000.00"
+        }
+      ],
+      "rejected_citations": [],
+      "note": "",
+      "trace": [
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "whitlock pryce invoice 2023-09 fees time entries"
+          },
+          "result": [
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 1",
+              "text": "INVOICE 2023-0917 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 1",
+              "text": "INVOICE 2025-0331 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "accounts.csv :: row D-06",
+              "text": "2023-09-18 Legal fees - Whitlock & Pryce LLP $14,690.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 15",
+              "text": "2023-09-19 CHQ 104 WHITLOCK PRYCE LLP $14,690.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 14",
+              "text": "2023-09-15 WIRE IN WHITLOCK PRYCE TRUST - ALDER LANE $398,500.00 (receipt)"
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 2",
+              "text": "From: Whitlock & Pryce LLP (counsel to the Executor)"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "$450 additional charge fee adjustment"
+          },
+          "result": [
+            {
+              "ref": "bank_statement.csv :: line 18",
+              "text": "2023-10-31 MONTHLY ACCOUNT FEE $4.95 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 6",
+              "text": "2023-04-28 MONTHLY ACCOUNT FEE $4.95 (disbursement)"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 22",
+              "text": "2023-09-16 | JW | Courtesy credit: entry of 2023-07-11 recorded twice | -1.00 | 450.00 | -450.00"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 15",
+              "text": "2023-07-11 | JW | Review offer; draft amendments to agreement of purchase and sale | 1.00 | 450.00 | 450.00"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 14",
+              "text": "2023-07-11 | JW | Review offer; draft amendments to agreement of purchase and sale | 1.00 | 450.00 | 450.00"
+            },
+            {
+              "ref": "accounts.csv :: row D-04",
+              "text": "2023-06-20 Roof repair - Keller Contracting $8,450.00 (disbursement)"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "invoice 2023-0917 time entries hours rate total fees disbursements tax"
+          },
+          "result": [
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 1",
+              "text": "INVOICE 2023-0917 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "accounts_summary.txt :: line 4",
+              "text": "Total disbursements: $235,224.58"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 6",
+              "text": "Date | Timekeeper | Description | Hours | Rate | Amount"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 6",
+              "text": "Date | Timekeeper | Description | Hours | Rate | Amount"
+            },
+            {
+              "ref": "cra_notice_of_assessment_2023.txt :: line 5",
+              "text": "Tax year: 2023"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 1",
+              "text": "INVOICE 2025-0331 - WHITLOCK & PRYCE LLP"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "2023-09-16 JW courtesy credit entry recorded twice"
+          },
+          "result": [
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 22",
+              "text": "2023-09-16 | JW | Courtesy credit: entry of 2023-07-11 recorded twice | -1.00 | 450.00 | -450.00"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 2",
+              "text": "Date: 2023-09-16"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 4",
+              "text": "For services: 2023-03-10 to 2023-09-16"
+            },
+            {
+              "ref": "correspondence/2023-09-20_letter.txt :: line 1",
+              "text": "Date: 2023-09-20"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 21",
+              "text": "2023-09-15 | JW | Attend closing of sale of 14 Alder Lane | 4.00 | 450.00 | 1800.00"
+            },
+            {
+              "ref": "bank_statement.csv :: line 12",
+              "text": "2023-09-05 WIRE OUT REF 77812 $1,250.00 (disbursement)"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "invoice 2023-0917 total fees disbursements HST tax amount due"
+          },
+          "result": [
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 1",
+              "text": "INVOICE 2023-0917 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "accounts_summary.txt :: line 4",
+              "text": "Total disbursements: $235,224.58"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 13",
+              "text": "Total due: $1,011.35"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 26",
+              "text": "Total due: $14,690.00"
+            },
+            {
+              "ref": "cra_notice_of_assessment_2023.txt :: line 5",
+              "text": "Tax year: 2023"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 12",
+              "text": "HST (13%): $116.35"
+            }
+          ]
+        }
+      ],
+      "checks": {}
+    },
+    {
+      "type": "letter_vs_records",
+      "key": "R-03",
+      "verdict": "stands",
+      "explanation": "The letter of 2023-10-05 states net proceeds of $412,000 from the sale of 14 Alder Lane, but the bank statement shows a wire in of only $398,500 from the Whitlock Pryce trust on 2023-09-15, and the accounts record the same $398,500. No transaction, invoice, or document in the file accounts for the $13,500 difference; the closest item (Whitlock & Pryce legal fees of $14,690) does not match the gap.",
+      "citations": [
+        {
+          "doc": "correspondence/2023-10-05_letter.txt",
+          "locator": "line 6",
+          "quote": "The property at 14 Alder Lane has sold, and the sale generated net proceeds of $412,000 to the Estate."
+        },
+        {
+          "doc": "accounts.csv",
+          "locator": "row R-03",
+          "quote": "2023-09-15 Sale of 14 Alder Lane - net proceeds $398,500.00 (receipt)"
+        },
+        {
+          "doc": "bank_statement.csv",
+          "locator": "line 14",
+          "quote": "2023-09-15 | WIRE IN WHITLOCK PRYCE TRUST - ALDER LANE | $398,500.00"
+        },
+        {
+          "doc": "invoices/invoice_whitlock_pryce_2023-09.txt",
+          "locator": "line 24",
+          "quote": "Fees: $13,000.00"
+        },
+        {
+          "doc": "invoices/invoice_whitlock_pryce_2023-09.txt",
+          "locator": "line 25",
+          "quote": "HST (13%): $1,690.00"
+        }
+      ],
+      "rejected_citations": [],
+      "note": "",
+      "trace": [
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "14 Alder Lane sale proceeds"
+          },
+          "result": [
+            {
+              "ref": "accounts.csv :: row R-03",
+              "text": "2023-09-15 Sale of 14 Alder Lane - net proceeds $398,500.00 (receipt)"
+            },
+            {
+              "ref": "correspondence/2023-10-05_letter.txt :: line 6",
+              "text": "The property at 14 Alder Lane has sold, and the sale generated net proceeds of $412,000 to the Estate."
+            },
+            {
+              "ref": "correspondence/2023-09-20_letter.txt :: line 6",
+              "text": "The sale of 14 Alder Lane closed on 15 September 2023 as scheduled."
+            },
+            {
+              "ref": "correspondence/2023-06-28_letter.txt :: line 6",
+              "text": "The property at 14 Alder Lane was listed for sale on 26 June 2023."
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 21",
+              "text": "2023-09-15 | JW | Attend closing of sale of 14 Alder Lane | 4.00 | 450.00 | 1800.00"
+            },
+            {
+              "ref": "schedule_a_assets.txt :: line 7",
+              "text": "3. House and lot at 14 Alder Lane, Kingston (to be valued)"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "$13,500"
+          },
+          "result": [
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 12",
+              "text": "HST (13%): $116.35"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 24",
+              "text": "Fees: $13,000.00"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 25",
+              "text": "HST (13%): $1,690.00"
+            },
+            {
+              "ref": "bank_statement.csv :: line 14",
+              "text": "2023-09-15 WIRE IN WHITLOCK PRYCE TRUST - ALDER LANE $398,500.00 (receipt)"
+            },
+            {
+              "ref": "accounts.csv :: row R-03",
+              "text": "2023-09-15 Sale of 14 Alder Lane - net proceeds $398,500.00 (receipt)"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "Whitlock Pryce invoice fees closing"
+          },
+          "result": [
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 1",
+              "text": "INVOICE 2025-0331 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 1",
+              "text": "INVOICE 2023-0917 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "accounts.csv :: row D-06",
+              "text": "2023-09-18 Legal fees - Whitlock & Pryce LLP $14,690.00 (disbursement)"
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 2",
+              "text": "From: Whitlock & Pryce LLP (counsel to the Executor)"
+            },
+            {
+              "ref": "correspondence/2024-06-12_letter.txt :: line 3",
+              "text": "To: Whitlock & Pryce LLP (counsel to the Executor)"
+            },
+            {
+              "ref": "correspondence/2024-01-18_letter.txt :: line 2",
+              "text": "From: Whitlock & Pryce LLP (counsel to the Executor)"
+            }
+          ]
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "bank",
+            "text": "Alder"
+          },
+          "result": [
+            {
+              "ref": "bank_statement.csv :: line 14",
+              "date": "2023-09-15",
+              "description": "WIRE IN WHITLOCK PRYCE TRUST - ALDER LANE",
+              "amount": "398500.00",
+              "direction": "money in"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "13500"
+          },
+          "result": []
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "sale price gross 412000"
+          },
+          "result": [
+            {
+              "ref": "bank_statement.csv :: line 16",
+              "text": "2023-10-02 DEPOSIT VEHICLE SALE $9,800.00 (receipt)"
+            },
+            {
+              "ref": "correspondence/2023-05-02_letter.txt :: line 9",
+              "text": "The Executor intends to list the property for sale this summer."
+            },
+            {
+              "ref": "correspondence/2023-08-30_letter.txt :: line 7",
+              "text": "Please confirm the expected closing date for the sale of the property."
+            },
+            {
+              "ref": "accounts.csv :: row R-04",
+              "text": "2023-10-02 Sale of vehicle - 2016 Subaru $9,800.00 (receipt)"
+            },
+            {
+              "ref": "correspondence/2023-09-20_letter.txt :: line 6",
+              "text": "The sale of 14 Alder Lane closed on 15 September 2023 as scheduled."
+            },
+            {
+              "ref": "correspondence/2023-06-28_letter.txt :: line 6",
+              "text": "The property at 14 Alder Lane was listed for sale on 26 June 2023."
+            }
+          ]
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "bank",
+            "date_from": "2023-09-01",
+            "date_to": "2023-10-31"
+          },
+          "result": [
+            {
+              "ref": "bank_statement.csv :: line 12",
+              "date": "2023-09-05",
+              "description": "WIRE OUT REF 77812",
+              "amount": "1250.00",
+              "direction": "money out"
+            },
+            {
+              "ref": "bank_statement.csv :: line 13",
+              "date": "2023-09-07",
+              "description": "REVERSAL WIRE OUT REF 77812",
+              "amount": "1250.00",
+              "direction": "money in"
+            },
+            {
+              "ref": "bank_statement.csv :: line 14",
+              "date": "2023-09-15",
+              "description": "WIRE IN WHITLOCK PRYCE TRUST - ALDER LANE",
+              "amount": "398500.00",
+              "direction": "money in"
+            },
+            {
+              "ref": "bank_statement.csv :: line 15",
+              "date": "2023-09-19",
+              "description": "CHQ 104 WHITLOCK PRYCE LLP",
+              "amount": "14690.00",
+              "direction": "money out"
+            },
+            {
+              "ref": "bank_statement.csv :: line 16",
+              "date": "2023-10-02",
+              "description": "DEPOSIT VEHICLE SALE",
+              "amount": "9800.00",
+              "direction": "money in"
+            },
+            {
+              "ref": "bank_statement.csv :: line 17",
+              "date": "2023-10-20",
+              "description": "E-TRANSFER TO D COLBY",
+              "amount": "5000.00",
+              "direction": "money out"
+            },
+            {
+              "ref": "bank_statement.csv :: line 18",
+              "date": "2023-10-31",
+              "description": "MONTHLY ACCOUNT FEE",
+              "amount": "4.95",
+              "direction": "money out"
+            }
+          ]
+        }
+      ],
+      "checks": {}
+    },
+    {
+      "type": "personal_legal_fees",
+      "key": "2023-07-25:JW:900.00",
+      "verdict": "needs_human",
+      "explanation": "",
+      "citations": [],
+      "rejected_citations": [],
+      "note": "routed to a lawyer by rule: this turns on judgment, not on the documents",
+      "trace": [],
+      "checks": {}
+    },
+    {
+      "type": "unpaid_bequest",
+      "key": "10000.00",
+      "verdict": "stands",
+      "explanation": "The Will leaves $10,000 to the Kingston Public Library Foundation, but no disbursement to that recipient appears in the accounts or the bank record. Searches for \"Kingston\" and \"library\" return only a City of Kingston property tax payment and the Will clause itself; no split payment, reversal, or differently-named entry accounts for the bequest.",
+      "citations": [
+        {
+          "doc": "will.txt",
+          "locator": "line 5",
+          "quote": "I give the sum of $10,000 to the Kingston Public Library Foundation."
+        },
+        {
+          "doc": "accounts.csv",
+          "locator": "row D-05",
+          "quote": "2023-07-03 | Property taxes - City of Kingston | $3,212.40"
+        },
+        {
+          "doc": "bank_statement.csv",
+          "locator": "line 8",
+          "quote": "2023-07-04 CITY OF KINGSTON TAX PAYMENT $3,212.40 (disbursement)"
+        }
+      ],
+      "rejected_citations": [],
+      "note": "",
+      "trace": [
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "Kingston Public Library Foundation"
+          },
+          "result": [
+            {
+              "ref": "will.txt :: line 5",
+              "text": "I give the sum of $10,000 to the Kingston Public Library Foundation."
+            },
+            {
+              "ref": "schedule_a_assets.txt :: line 7",
+              "text": "3. House and lot at 14 Alder Lane, Kingston (to be valued)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 8",
+              "text": "2023-07-04 CITY OF KINGSTON TAX PAYMENT $3,212.40 (disbursement)"
+            },
+            {
+              "ref": "accounts.csv :: row D-05",
+              "text": "2023-07-03 Property taxes - City of Kingston $3,212.40 (disbursement)"
+            }
+          ]
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "accounts",
+            "text": "Kingston"
+          },
+          "result": [
+            {
+              "ref": "accounts.csv :: row D-05",
+              "date": "2023-07-03",
+              "description": "Property taxes - City of Kingston",
+              "amount": "3212.40",
+              "direction": "money out"
+            }
+          ]
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "bank",
+            "text": "library"
+          },
+          "result": []
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "library foundation bequest"
+          },
+          "result": [
+            {
+              "ref": "will.txt :: line 5",
+              "text": "I give the sum of $10,000 to the Kingston Public Library Foundation."
+            }
+          ]
+        }
+      ],
+      "checks": {}
+    },
+    {
+      "type": "date_mismatch",
+      "key": "D-07",
+      "verdict": "stands",
+      "explanation": "The file contains no Brandt CPA invoice, no correspondence referencing the payment, and no other transaction or note that would explain the 43-day gap between the accounts date (2023-11-06) and the bank date (2023-12-19). The amount matches exactly at $2,825.00, confirming it is the same payment, but nothing in the file accounts for the timing difference.",
+      "citations": [
+        {
+          "doc": "accounts.csv",
+          "locator": "row D-07",
+          "quote": "2023-11-06 Accounting fees - Brandt CPA $2,825.00 (disbursement)"
+        },
+        {
+          "doc": "bank_statement.csv",
+          "locator": "line 19",
+          "quote": "2023-12-19 CHQ 105 BRANDT CPA $2,825.00 (disbursement)"
+        }
+      ],
+      "rejected_citations": [],
+      "note": "",
+      "trace": [
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "Brandt CPA accounting fees"
+          },
+          "result": [
+            {
+              "ref": "accounts.csv :: row D-07",
+              "text": "2023-11-06 Accounting fees - Brandt CPA $2,825.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 19",
+              "text": "2023-12-19 CHQ 105 BRANDT CPA $2,825.00 (disbursement)"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 11",
+              "text": "Fees: $895.00"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 24",
+              "text": "Fees: $13,000.00"
+            },
+            {
+              "ref": "correspondence/2023-10-05_letter.txt :: line 7",
+              "text": "The Executor will provide the T3 trust returns for 2023 together with her accounting."
+            },
+            {
+              "ref": "accounts.csv :: row D-06",
+              "text": "2023-09-18 Legal fees - Whitlock & Pryce LLP $14,690.00 (disbursement)"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "D-07 date timing check"
+          },
+          "result": [
+            {
+              "ref": "bank_statement.csv :: line 17",
+              "text": "2023-10-20 E-TRANSFER TO D COLBY $5,000.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 22",
+              "text": "2024-03-01 TRANSFER TO D COLBY EXECUTOR COMPENSATION $32,000.00 (disbursement)"
+            },
+            {
+              "ref": "will.txt :: line 2",
+              "text": "Date: 2019-06-03"
+            },
+            {
+              "ref": "schedule_a_assets.txt :: line 2",
+              "text": "Date: 2023-04-20"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 2",
+              "text": "Date: 2025-03-31"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 2",
+              "text": "Date: 2023-09-16"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "CHQ 105 cheque check number"
+          },
+          "result": [
+            {
+              "ref": "bank_statement.csv :: line 19",
+              "text": "2023-12-19 CHQ 105 BRANDT CPA $2,825.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 4",
+              "text": "2023-04-05 CHQ 102 MINISTER OF FINANCE PROBATE $2,105.00 (disbursement)"
+            },
+            {
+              "ref": "accounts.csv :: row D-02",
+              "text": "2023-04-05 Probate fees - Minister of Finance $2,105.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 15",
+              "text": "2023-09-19 CHQ 104 WHITLOCK PRYCE LLP $14,690.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 11",
+              "text": "2023-08-28 CHQ 107 BRIGHTWAY HAULAGE BALANCE $1,800.00 (disbursement)"
+            },
+            {
+              "ref": "bank_statement.csv :: line 10",
+              "text": "2023-08-14 CHQ 106 BRIGHTWAY HAULAGE DEPOSIT $1,800.00 (disbursement)"
+            }
+          ]
+        },
+        {
+          "tool": "find_transactions",
+          "args": {
+            "source": "accounts",
+            "text": "Brandt"
+          },
+          "result": [
+            {
+              "ref": "accounts.csv :: row D-07",
+              "date": "2023-11-06",
+              "description": "Accounting fees - Brandt CPA",
+              "amount": "2825.00",
+              "direction": "money out"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "Brandt CPA invoice"
+          },
+          "result": [
+            {
+              "ref": "bank_statement.csv :: line 19",
+              "text": "2023-12-19 CHQ 105 BRANDT CPA $2,825.00 (disbursement)"
+            },
+            {
+              "ref": "accounts.csv :: row D-07",
+              "text": "2023-11-06 Accounting fees - Brandt CPA $2,825.00 (disbursement)"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 1",
+              "text": "INVOICE 2025-0331 - WHITLOCK & PRYCE LLP"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 1",
+              "text": "INVOICE 2023-0917 - WHITLOCK & PRYCE LLP"
+            }
+          ]
+        },
+        {
+          "tool": "search_documents",
+          "args": {
+            "query": "timing date difference cheque cashed"
+          },
+          "result": [
+            {
+              "ref": "will.txt :: line 2",
+              "text": "Date: 2019-06-03"
+            },
+            {
+              "ref": "schedule_a_assets.txt :: line 2",
+              "text": "Date: 2023-04-20"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2025-03.txt :: line 2",
+              "text": "Date: 2025-03-31"
+            },
+            {
+              "ref": "invoices/invoice_whitlock_pryce_2023-09.txt :: line 2",
+              "text": "Date: 2023-09-16"
+            },
+            {
+              "ref": "correspondence/2025-06-10_letter.txt :: line 1",
+              "text": "Date: 2025-06-10"
+            },
+            {
+              "ref": "correspondence/2024-06-12_letter.txt :: line 1",
+              "text": "Date: 2024-06-12"
+            }
+          ]
+        }
+      ],
+      "checks": {}
+    }
+  ]
+}

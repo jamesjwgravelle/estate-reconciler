@@ -1,6 +1,10 @@
 """Stage 2: score the investigator agent. Needs a model (see README).
 
-    python evals/run_agent_eval.py            # writes evals/last_agent_run.json
+    python evals/run_agent_eval.py                      # full agent: 3 agreeing runs + second reviewer
+    python evals/run_agent_eval.py --runs 1 --no-verify # the bare agent, to measure what the checks add
+
+Each run is saved to evals/runs/<model>_<time>.json. `python evals/make_table.py` turns
+that folder into the results table.
 
 Two numbers, in order of importance:
 
@@ -12,16 +16,21 @@ to a human is useless, so the share sent to review is reported too.
 """
 from __future__ import annotations
 
+import argparse
 import json
+import os
+import re
 import sys
+from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from evals.run_eval import load_truth  # noqa: E402
+from make_demo import DATASET_VERSION  # noqa: E402
 from reconciler import llm  # noqa: E402
-from reconciler.agent import Investigation, investigate_all  # noqa: E402
+from reconciler.agent import AGENT_VERSION, Investigation, investigate_all  # noqa: E402
 from reconciler.checks import run_all  # noqa: E402
 from reconciler.ingest import load_matter  # noqa: E402
 
@@ -57,13 +66,31 @@ def print_score(r: dict) -> None:
 
 
 if __name__ == "__main__":
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--runs", type=int, default=3, help="agreeing runs needed to clear a finding")
+    ap.add_argument("--no-verify", action="store_true", help="skip the second reviewer")
+    args = ap.parse_args()
     if not llm.configured():
         sys.exit("set RECONCILER_LLM_BASE_URL and RECONCILER_LLM_MODEL first (see README)")
+
+    model = os.environ["RECONCILER_LLM_MODEL"]
+    reviewer = llm.reviewer_client() if not args.no_verify else None
+    config = {"agent": AGENT_VERSION, "dataset": DATASET_VERSION, "runs": args.runs, "verify": not args.no_verify,
+              "reviewer": reviewer.model if reviewer else "same model"}
+    print(f"model: {model}   agent: {config}\n")
     matter = load_matter(ROOT / "demo_matter")
-    invs = investigate_all(run_all(matter), matter, llm.Client(),
+    invs = investigate_all(run_all(matter), matter, llm.Client(), runs=args.runs, verify=not args.no_verify, reviewer=reviewer,
                            progress=lambda f, i: print(f"[{i.verdict:<11}] {f.type} / {f.key}"))
-    (ROOT / "evals" / "last_agent_run.json").write_text(json.dumps([i.to_dict() for i in invs], indent=2))
-    print()
     result = score_investigations(invs, load_truth())
+
+    # One file per run, so a later run never overwrites the evidence for an earlier one.
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    runs_dir = ROOT / "evals" / "runs"
+    runs_dir.mkdir(exist_ok=True)
+    out = runs_dir / f"{re.sub(r'[^A-Za-z0-9.]+', '-', model)}_{stamp}.json"
+    out.write_text(json.dumps({"model": model, "run_at": stamp, "config": config, "score": result,
+                               "investigations": [i.to_dict() for i in invs]}, indent=2))
+    print()
     print_score(result)
+    print(f"\nsaved {out.relative_to(ROOT)}")
     sys.exit(1 if result["wrongly_dismissed"] else 0)

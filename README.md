@@ -1,8 +1,9 @@
 # Estate Reconciler
 
 Cross-checks an executor's statement of accounts against the bank record and the
-correspondence, investigates each discrepancy, and produces a memo and a draft
-document-request letter in which every item cites the document and line it rests on.
+correspondence, investigates each discrepancy, and produces a lawyer's report, a client
+summary and a draft document-request letter. Every item cites the document and line it
+rests on, and the reports put a dollar figure on what is in question.
 
 It works in two stages.
 
@@ -15,6 +16,12 @@ It works in two stages.
 - a letter describing a document as outstanding after the date on the document
 - figures quoted in letters that do not match the records
 - compensation above a configurable starting point
+- gifts of money in the will with no payment in the accounts
+- penalties and late charges paid out of the estate
+- a lawyer's invoice whose time entries do not add up to the fees billed
+- the same time entry billed twice
+- time that looks like advice to the executor personally, billed to the estate
+- a letter saying a document has not arrived when the firm's own time records show work on it
 
 **Stage 2, the investigator (an agent).** For each finding, a model with read-only tools
 looks for an innocent explanation already in the file: a split payment, a reversed entry,
@@ -28,7 +35,8 @@ Python 3.10+, no dependencies.
 
 ```
 python make_demo.py                                   # writes the fictional demo matter
-python -m reconciler analyze demo_matter --out out    # stage 1: findings.json + memo.html
+python -m reconciler analyze demo_matter --out out    # stage 1: checks, then the reports
+python verify.py                                      # tests + stage 1 eval + reports, one command
 python -m reconciler ask demo_matter "Were the T3 returns ever provided?"
 python evals/run_eval.py                              # stage 1 scores
 python -m unittest discover tests
@@ -41,9 +49,44 @@ one keeps privileged documents on your own machine. The model must support tool 
 export RECONCILER_LLM_BASE_URL=http://localhost:11434/v1     # e.g. Ollama
 export RECONCILER_LLM_MODEL=<a tool-calling model you have pulled>
 
-python -m reconciler investigate demo_matter --out out   # memo with verdicts + draft letter
-python evals/run_agent_eval.py                           # stage 2 scores
+python -m reconciler investigate demo_matter --out out   # reports with verdicts + draft letter
+python -m reconciler report demo_matter --out out        # rebuild the reports without re-running the model
+python evals/run_agent_eval.py                           # stage 2 scores, saved to evals/runs/
+python evals/run_agent_eval.py --runs 1 --no-verify      # the bare agent, for comparison
+export RECONCILER_REVIEW_MODEL=<a different model>       # optional: independent second reviewer
+python evals/make_table.py --write                       # rebuild the results table below
 ```
+
+A lawyer-facing explanation of the output is in [GUIDE.md](GUIDE.md).
+
+## What it produces
+
+| File | For | Contents |
+|---|---|---|
+| `report_lawyer.html` | the lawyer | dollar total, table by category, balance bridge, every item with its citations and verdict |
+| `report_client.html` | the client, after the lawyer has reviewed it | the same items and numbering in plain language, no citations |
+| `schedule.csv` | working papers | one row per item: category, status, amount, whether it is in the total, sources |
+| `draft_request_letter.md` | the lawyer | a request for each open item, from fixed wording |
+| `findings.json`, `investigations.json` | audit | everything above in machine-readable form, including each tool call the agent made |
+
+**The dollar figure.** The "amount in question" adds up the open discrepancies. Two rules
+keep it defensible. Nothing is counted twice: a wrong total and a balance gap are symptoms
+of the items behind them, so they are shown but not added. And anything the investigator
+found to be explained by the file is left out. It is not a damages figure, and both
+reports say so.
+
+**The balance bridge.** The lawyer's report shows, in code-computed arithmetic, how the
+individual items add up to the gap between the stated balance and the bank balance. On
+the demo matter the unexplained residual is $0.00. A residual that is not zero means
+something moved the balance that no check has identified.
+
+## Extending it
+
+Each check is one file in `reconciler/rules/`. Adding one does not mean editing any
+existing check. `AGENTS.md` has the recipe, the rules that must not be broken, and a
+backlog of small, self-contained tasks. It is written so that a coding assistant, including
+a small local model, can take one task at a time; `python verify.py` tells it whether the
+change is safe.
 
 ## Design choices
 
@@ -60,6 +103,13 @@ plain code (`checks.py`). The agent has an `add_amounts` tool for the same reaso
   the model at all.
 - An arithmetic error or a balance gap can never be marked `explained`. The model's
   account is kept as a lead for the reviewer.
+- Clearing takes more than keeping. If a first run keeps a finding, that is accepted. If
+  it clears one, two further runs (sampled, fixed seeds) must agree, and then a second
+  reviewer must confirm. The reviewer is a fresh call that sees only the finding, the
+  claim and the cited evidence, and is told by code which citations are themselves
+  relied on by another finding. Any dissent sends the item to a lawyer. Set
+  `RECONCILER_REVIEW_MODEL` to have a different model act as reviewer, so that no model
+  marks its own work.
 
 **The errors are not symmetric.** Sending an explained item to a lawyer costs minutes.
 Clearing a real one loses it. Every fallback lands on `needs_human`.
@@ -68,15 +118,18 @@ Clearing a real one loses it. Every fallback lands on `needs_human`.
 (`investigations.json`), so a reviewer can see what the agent looked at, not only what
 it concluded.
 
+**The reports are built by code.** Totals, categories and the bridge come from `summary.py`;
+no model writes or sums anything in them.
+
 **The letter is a template, not generated prose.** A draft built from fixed wording
 cannot introduce a fact that is not in the findings.
 
-**Findings are questions, not accusations.** The memo describes what two documents say
+**Findings are questions, not accusations.** The report describes what two documents say
 and where they differ. It does not characterise anyone's conduct.
 
 ## How it is tested
 
-The demo matter contains eleven real problems and five decoys, all labelled in
+The demo matter contains seventeen real problems and six decoys, all labelled in
 `evals/ground_truth.json`. A decoy looks like a problem to stage 1 and is explained
 elsewhere in the file.
 
@@ -84,11 +137,11 @@ Stage 1, the checks (plain code, no model):
 
 | Measure | Result |
 |---|---|
-| Raises all 16 labelled items, nothing else | 16 of 16, 0 unexpected |
-| Share of raised items that are real problems | 69% (11 of 16), by design |
-| Control file with no problems | 0 findings |
+| Raises all 23 labelled items, nothing else | 23 of 23, 0 unexpected |
+| Share of raised items that are real problems | 74% (17 of 23), by design |
+| Control file with no problems (including two invoices and eight routine letters) | 0 findings |
 
-Stage 2, the investigator, on the same 16 findings (local models, 2026-11-16):
+Stage 2, early runs on the first version of the demo (11 real problems, 5 decoys; local models, 2026-11-16; recorded by hand, before runs were saved to file):
 
 | Model | Agent version | Real problems wrongly dismissed | Decoys cleared | Sent to a lawyer | Real share of what remains |
 |---|---|---|---|---|---|
@@ -104,14 +157,30 @@ The MoE row is the most useful result here. That model marked the $5,000 total e
 the balance gap as "explained", the planted trap described below, despite a prompt rule
 written to prevent exactly that. Its citations were real, so the citation guardrails let
 the verdict through. The response was a rule in code, not a firmer prompt: those two
-kinds of finding can no longer be cleared by any model (agent v3). Results for v3 are
-not yet measured.
+kinds of finding can no longer be cleared by any model (agent v3). Agent v4 then made
+every clearance need three agreeing runs and a second reviewer.
+
+Stage 2, current agent. This table is generated from the files in `evals/runs/` by
+`python evals/make_table.py --write`; nothing in it is typed by hand.
+
+<!-- results:start -->
+| Model | Agent configuration | Eval runs | Real problems wrongly dismissed (worst run) | Decoys cleared | Sent to a lawyer |
+|---|---|---|---|---|---|
+| `qwen3.8` | v6, demo set 3, 1 run(s) to clear, no second reviewer | 1 | 0 of 17 | 6 of 6 | 4 |
+| `qwen3.8` | v6, demo set 3, 3 run(s) to clear, second reviewer `qwen3.6:35b` | 1 | 0 of 17 | 4 of 6 | 6 |
+<!-- results:end -->
 
 The stage 2 tests in `tests/test_agent.py` use a scripted stand-in for the model. They
 prove the loop, tools and guardrails behave, and that each decoy's explanation is
 reachable with the tools provided. They say nothing about how well a real model
 investigates. That is what `run_agent_eval.py` measures. One run on one small file is a
 first reading, not a benchmark.
+
+The file also contains eight routine letters with nothing wrong in them, so that not
+every document is a problem. Three planted traps test whether a model mistakes something
+related for an explanation: a letter saying the roof repairs were completed (not evidence
+that the estate paid for them), a $150,000 distribution to beneficiaries (not the $10,000
+gift to the library), and the one below.
 
 One planted trap to watch: the summary overstates disbursements by exactly $5,000, the
 same size as an e-transfer missing from the accounts. A model may call one an
@@ -131,6 +200,7 @@ explanation of the other. It is a link between two problems, not an explanation 
 - A second local model cleared two real problems by citing a third of the same size.
   A prompt rule did not stop it; a code rule now does. The wider weakness remains: for
   other kinds of finding, a model can still present a related problem as an explanation.
+  The second reviewer (v4) is aimed at that; whether it works is for the next runs to show.
 
 ## Limits
 
@@ -149,7 +219,8 @@ explanation of the other. It is a link between two problems, not an explanation 
 
 ## Roadmap
 
-1. Run stage 2 on two or three local models; record the scores and each prompt revision.
+1. Several runs per model on agent v4, with and without the extra checks, to measure what
+   they add and what they cost in decoys no longer cleared.
 2. A second matter written by someone else, as a held-out test.
 3. An LLM extractor behind `extract.statements()`, scored against the rule-based baseline.
 4. PDF and scanned-statement ingestion.

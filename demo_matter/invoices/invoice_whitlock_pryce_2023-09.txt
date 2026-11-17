@@ -1,0 +1,26 @@
+INVOICE 2023-0917 - WHITLOCK & PRYCE LLP
+Date: 2023-09-16
+To: Estate of Margaret Ellen Hartwell, c/o Diane Colby, Executor
+For services: 2023-03-10 to 2023-09-16
+
+Date | Timekeeper | Description | Hours | Rate | Amount
+2023-03-10 | JW | Initial meeting with executor; review will | 2.00 | 450.00 | 900.00
+2023-03-22 | LC | Prepare probate application | 4.00 | 200.00 | 800.00
+2023-04-04 | JW | Review and file probate application | 1.50 | 450.00 | 675.00
+2023-04-18 | JW | Estate administration advice; correspondence with insurers and bank | 1.50 | 450.00 | 675.00
+2023-05-02 | JW | Letter to beneficiary counsel enclosing will | 0.50 | 450.00 | 225.00
+2023-06-14 | JW | Telephone call with realtor re listing of 14 Alder Lane | 0.50 | 450.00 | 225.00
+2023-06-14 | JW | Telephone call with realtor re listing of 14 Alder Lane | 0.50 | 450.00 | 225.00
+2023-07-11 | JW | Review offer; draft amendments to agreement of purchase and sale | 1.00 | 450.00 | 450.00
+2023-07-11 | JW | Review offer; draft amendments to agreement of purchase and sale | 1.00 | 450.00 | 450.00
+2023-07-25 | JW | Advise executor personally re beneficiary's complaint about delay | 2.00 | 450.00 | 900.00
+2023-08-01 | JW | Negotiations with purchaser's solicitor | 4.50 | 450.00 | 2025.00
+2023-08-22 | JW | Review title and requisitions | 3.00 | 450.00 | 1350.00
+2023-09-05 | LC | Statement of adjustments; trust ledger | 5.50 | 200.00 | 1100.00
+2023-09-12 | LC | Prepare closing documents | 6.00 | 200.00 | 1200.00
+2023-09-15 | JW | Attend closing of sale of 14 Alder Lane | 4.00 | 450.00 | 1800.00
+2023-09-16 | JW | Courtesy credit: entry of 2023-07-11 recorded twice | -1.00 | 450.00 | -450.00
+
+Fees: $13,000.00
+HST (13%): $1,690.00
+Total due: $14,690.00

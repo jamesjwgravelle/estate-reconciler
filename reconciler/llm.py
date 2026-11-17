@@ -6,6 +6,7 @@ leave the machine. Configure with environment variables:
     RECONCILER_LLM_BASE_URL   e.g. http://localhost:11434/v1
     RECONCILER_LLM_MODEL      a model that supports tool calling, for the investigator
     RECONCILER_LLM_API_KEY    optional
+    RECONCILER_REVIEW_MODEL   optional: a different model to act as second reviewer of clearances
 """
 from __future__ import annotations
 
@@ -26,9 +27,12 @@ class Client:
         self.key = api_key or os.environ.get("RECONCILER_LLM_API_KEY")
         self.timeout = timeout
 
-    def complete(self, messages: list[dict], tools: list[dict] | None = None) -> dict:
+    def complete(self, messages: list[dict], tools: list[dict] | None = None,
+                 temperature: float = 0, seed: int | None = None) -> dict:
         """One chat turn. Returns the assistant message (which may contain tool_calls)."""
-        body = {"model": self.model, "temperature": 0, "messages": messages}
+        body = {"model": self.model, "temperature": temperature, "messages": messages}
+        if seed is not None:
+            body["seed"] = seed
         if tools:
             body["tools"] = tools
         headers = {"Content-Type": "application/json"}
@@ -38,6 +42,12 @@ class Client:
                                      data=json.dumps(body).encode(), headers=headers)
         with urllib.request.urlopen(req, timeout=self.timeout) as resp:
             return json.load(resp)["choices"][0]["message"]
+
+
+def reviewer_client() -> Client | None:
+    """A client for the second reviewer, if a separate model is configured."""
+    model = os.environ.get("RECONCILER_REVIEW_MODEL")
+    return Client(model=model) if model else None
 
 
 def chat(system: str, user: str) -> str:

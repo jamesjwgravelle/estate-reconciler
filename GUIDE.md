@@ -17,8 +17,14 @@ recommended, with a model running on your own computer, no document leaves it.
 
 ## What you get back
 
-**A memo.** One entry per discrepancy, most serious first. Each entry shows what two
-documents say, where they differ, and the exact lines quoted from each.
+**A lawyer's report.** A dollar total, a table by category, and one entry per
+discrepancy, most serious first. Each entry shows what two documents say, where they
+differ, the amount, and the exact lines quoted from each.
+
+**A client summary.** The same items, with the same numbering, in plain language and
+without citations. It is a draft for you to review and edit before it goes to the client.
+
+**A schedule.** The items as a spreadsheet (CSV), one row each, for your own working papers.
 
 **A verdict on each entry.** Before an item reaches you, the tool looks through the file
 for an innocent explanation.
@@ -36,9 +42,25 @@ It is a draft. Nothing is ever sent for you.
 
 1. Read the title. It states the discrepancy in one line.
 2. Open the quoted passages in the original documents and confirm they say what the
-   memo says they say. Do this for every item you intend to rely on.
+   report says they say. Do this for every item you intend to rely on.
 3. Read the verdict and its note. Where the tool overrode itself, the note says why.
 4. Decide. The tool's verdict is a recommendation.
+
+## How to read the dollar figure
+
+The "amount in question" is the sum of the individual discrepancies that are still open.
+
+- **Nothing is counted twice.** A total that does not add up, or a balance that does not
+  match the bank, is a symptom of the items behind it. Those amounts are shown but not added.
+- **Explained items are left out.** Once the tool has investigated, anything the file
+  itself accounts for is set aside.
+- **It is not a damages figure.** It tells you how much money the open questions touch,
+  not what was lost or what is owed. Say so when you give the number to a client.
+
+The balance bridge in the lawyer's report shows how the individual items add up to the
+gap between the balance the accounts state and the balance at the bank. If the
+"unexplained residual" is not zero, something moved the balance that the tool has not
+identified, and that is worth a question of its own.
 
 ## What it checks
 
@@ -48,6 +70,11 @@ It is a draft. Nothing is ever sent for you.
 - Letters that describe a document as outstanding after the date on the document
 - Figures quoted in letters against the records
 - Executor compensation against a starting-point guideline you can set
+- Gifts of money in the will against the payments in the accounts
+- Penalties and late charges paid out of the estate
+- Lawyers' invoices paid by the estate: whether they add up, entries billed twice, and
+  time that looks like advice to the executor personally
+- Letters against the lawyers' own time records
 
 ## How cautious it is
 
@@ -71,5 +98,5 @@ The tool is built so that its mistakes fall on the safe side.
 
 1. Check the citation before you repeat the claim.
 2. Treat "explained" as "probably fine", not "confirmed".
-3. If an item you expected is missing from the memo, do not assume it was cleared. Check
+3. If an item you expected is missing from the report, do not assume it was cleared. Check
    it yourself; the tool only sees what is in the folder.

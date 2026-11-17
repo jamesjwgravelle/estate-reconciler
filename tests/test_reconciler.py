@@ -51,7 +51,8 @@ class CleanMatter(unittest.TestCase):
             self.assertEqual(keys, {
                 ("amount_mismatch", "D-11"), ("undisclosed_transaction", "2023-08-28:1800.00"),
                 ("undisclosed_transaction", "2023-09-05:1250.00"),
-                ("undisclosed_transaction", "2023-09-07:1250.00"), ("missing_document", "inventory")})
+                ("undisclosed_transaction", "2023-09-07:1250.00"), ("missing_document", "inventory"),
+                ("duplicate_time_entry", "2023-07-11:JW:450.00")})
 
 
 if __name__ == "__main__":
