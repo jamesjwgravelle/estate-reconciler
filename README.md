@@ -176,9 +176,13 @@ Stage 2, current agent. This table is also generated from the files in `evals/ru
 |---|---|---|---|---|---|---|
 | `qwen3.8` | v6, demo set 3, 1 run(s) to clear, no second reviewer | 1 | 0 of 17 | 6 of 6 | 4 | 0 |
 | `qwen3.8` | v6, demo set 3, 3 run(s) to clear, second reviewer `qwen3.6:35b` | 1 | 0 of 17 | 4 of 6 | 6 | 0 |
-| `qwen3.8:27b-q8_0` | v7, demo set 4, 3 run(s) to clear, second reviewer | 1 | 0 of 21 | 5 of 6 | 6 | 0 |
-| `qwen3.8:27b-q8_0` | v7, demo set 4, 3 run(s) to clear, second reviewer `gemma4:31b` | 2 | 0 of 21 | 6 of 6 | 4 to 6 | 0 |
+| `qwen3.8:27b-q8_0` | v7, demo set 4, 1 run(s) to clear, no second reviewer | 1 | 0 of 21 | 5 of 6 | 10 | 0 |
+| `qwen3.8:27b-q8_0` | v7, demo set 4, 3 run(s) to clear, second reviewer | 3 | 0 of 21 | 4 to 5 of 6 | 6 to 11 | 0 |
+| `qwen3.8:27b-q8_0` | v7, demo set 4, 3 run(s) to clear, second reviewer `gemma4:31b` | 3 | 0 of 21 | 6 of 6 | 4 to 6 | 0 |
 <!-- results:end -->
+
+Note: one `gemma4:31b` run (2026-11-18 13:27) predates error counting; two of its six
+items sent to a lawyer were timeouts, not model judgments.
 
 The stage 2 tests in `tests/test_agent.py` use a scripted stand-in for the model. They
 prove the loop, tools and guardrails behave, and that each decoy's explanation is
