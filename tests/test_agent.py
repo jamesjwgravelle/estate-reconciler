@@ -43,8 +43,10 @@ class Scripted:
         return turn(messages) if callable(turn) else turn
 
 
-BANK_14 = "bank_statement.csv :: line 10"
-BANK_28 = "bank_statement.csv :: line 11"
+# The two Brightway cheques (the split-payment decoy). Line numbers shift when the demo gains
+# earlier bank lines; test_tools_can_reach_every_decoy_explanation fails first if they drift.
+BANK_14 = "bank_statement.csv :: line 12"
+BANK_28 = "bank_statement.csv :: line 13"
 
 
 class AgentGuardrails(unittest.TestCase):
@@ -250,6 +252,11 @@ class ClearingTakesAgreement(AgentGuardrails):
         personal = self.by_key[("personal_legal_fees", "2023-07-25:JW:900.00")]
         untouched = Scripted()
         self.assertEqual((investigate(personal, self.matter, untouched).verdict, untouched.seen), ("needs_human", []))
+
+    def test_agent_fee_offset_never_reaches_the_model(self):
+        untouched = Scripted()
+        inv = investigate(self.by_key[("agent_fee_offset", "D-09")], self.matter, untouched)
+        self.assertEqual((inv.verdict, untouched.seen), ("needs_human", []))
 
     def test_a_first_run_that_keeps_the_finding_is_not_repeated(self):
         inv, client = self.run_checked(KEEP)

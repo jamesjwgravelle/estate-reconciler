@@ -29,6 +29,8 @@ class Config:
     # disbursements. 2.5% + 2.5% is the customary Ontario starting point; set per jurisdiction.
     comp_rate_receipts: Decimal = Decimal("0.025")
     comp_rate_disbursements: Decimal = Decimal("0.025")
+    form_signature_gap_days: int = 60    # form dated this long before it was signed: flag
+    clearance_followup_days: int = 90    # final assessment to clearance application: flag beyond this
 
 
 CheckFn = Callable[[Matter, Config], list[Finding]]

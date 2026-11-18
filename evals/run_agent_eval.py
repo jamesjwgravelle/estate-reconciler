@@ -48,6 +48,9 @@ def score_investigations(invs: list[Investigation], truth: dict[tuple[str, str],
         "decoys_not_cleared": [(i.type, i.key, i.verdict) for i in decoy if i.verdict != "explained"],
         "sent_to_human": sum(i.verdict == "needs_human" for i in invs),
         "overridden_by_guardrail": [(i.type, i.key, i.note) for i in invs if i.note],
+        # Timeouts and connection failures: infrastructure, not judgment. Counted separately so a
+        # slow machine does not look like a cautious model.
+        "model_errors": sum(1 for i in invs if i.note.startswith(("model error", "reviewer error"))),
         "precision_after": (sum(truth.get((i.type, i.key)) == "real" for i in kept) / len(kept)) if kept else 1.0,
     }
 
@@ -60,6 +63,8 @@ def print_score(r: dict) -> None:
     for t, k, v in r["decoys_not_cleared"]:
         print(f"    not cleared: {t} / {k} ({v})")
     print(f"sent to a human:   {r['sent_to_human']}")
+    if r.get("model_errors"):
+        print(f"    of which model errors (timeouts etc.): {r['model_errors']}")
     print(f"precision of what remains: {r['precision_after']:.0%}")
     for t, k, note in r["overridden_by_guardrail"]:
         print(f"    guardrail: {t} / {k}: {note}")

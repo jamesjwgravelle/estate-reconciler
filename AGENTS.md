@@ -58,7 +58,8 @@ unless the task says the expected result has changed.
    mismatch is the point.
 4. Add the expected finding to `evals/ground_truth.json` with `"label": "real"`.
 5. If the demo changed, bump `DATASET_VERSION` in `make_demo.py`.
-6. Update the counts in `README.md` ("How it is tested") and the list in `GUIDE.md`.
+6. Run `python evals/make_table.py --write` to regenerate the README counts, and add the
+   check to the lists in `README.md` and `GUIDE.md`.
 7. Run `python verify.py`.
 
 To add a decoy instead (something that looks wrong but is explained in the file): plant
@@ -101,7 +102,11 @@ Each is sized to be done alone. "Done when" is the acceptance test.
    raised as `invoice_vs_accounts` and the clean control stays clean.
 9. **Hours times rate.** Flag a time entry whose amount is not hours x rate. *Done when:*
    one seeded entry is raised and counted.
-10. **Second demo matter.** A new estate with different names and at least three new traps,
+10. **Compensation threats in letters.** Flag a letter that says compensation will rise if a
+    passing of accounts is required, quoting it neutrally. *Done when:* one seeded sentence is
+    raised, one sentence merely mentioning compensation is not, and the finding goes to a
+    lawyer by rule (add its type to `JUDGMENT_ONLY`).
+11. **Second demo matter.** A new estate with different names and at least three new traps,
    written by someone who has not read `rules/`. This is the most valuable item on the list.
 
 Not on the list on purpose: a web interface, a vector database, more agents. None of them

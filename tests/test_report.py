@@ -22,7 +22,8 @@ from reconciler.summary import balance_bridge, totals  # noqa: E402
 # The planted, counted, real amounts other than compensation (which is computed from a guideline):
 # funeral 2,000 + roof 8,450 + e-transfer 5,000 + sale figure 13,500 + library gift 10,000 + penalty 350
 # + legal fees: invoice shortfall 450 + duplicate entry 225 + personal advice 900
-FIXED_REAL = Decimal("40875.00")
+# + tax payment on a reassessment with no notice 1,480. (Agent fees overlap with compensation: not added.)
+FIXED_REAL = Decimal("42355.00")
 DECOYS = Decimal("6550.00")   # 1,800 + 1,800 + 1,250 + 1,250 + credited duplicate entry 450
 
 
@@ -55,11 +56,28 @@ class Reports(unittest.TestCase):
         t = totals(self.findings, self.invs)
         self.assertEqual(t["amount_in_question"], FIXED_REAL + self.comp)
         self.assertEqual(t["by_status"]["explained"]["count"], 6)
-        self.assertEqual(t["open_count"], 17)
+        self.assertEqual(t["open_count"], 21)
 
     def test_symptoms_are_never_added_to_the_total(self):
         """The $5,000 total error and the balance gap overlap with the items behind them."""
         without = [f for f in self.findings if f.type not in ("arithmetic_error", "balance_mismatch", "date_mismatch")]
+        self.assertEqual(totals(self.findings)["amount_in_question"], totals(without)["amount_in_question"])
+
+    def test_reprint_date_is_never_read_as_the_issue_date(self):
+        notice = next(d for d in self.matter.texts if d.doc_type == "notice_of_assessment")
+        self.assertEqual((str(notice.date), str(notice.reprinted)), ("2024-12-17", "2025-07-02"))
+        timeline = next(f for f in self.findings if f.type == "timeline_contradiction")
+        self.assertEqual(len([e for e in timeline.evidence if e.doc.startswith("correspondence/")]), 2)
+        self.assertIn("reprinted", timeline.detail)
+
+    def test_reassessment_payment_with_its_notice_is_not_raised(self):
+        flagged = {f.key for f in self.findings if f.type == "unsupported_tax_payment"}
+        self.assertEqual(flagged, {"D-17"})       # D-18 has its notice in the file
+
+    def test_agent_fees_are_shown_but_not_added_twice(self):
+        offset = next(f for f in self.findings if f.type == "agent_fee_offset")
+        self.assertEqual(offset.amount, Decimal("7200.00"))
+        without = [f for f in self.findings if f.type != "agent_fee_offset"]
         self.assertEqual(totals(self.findings)["amount_in_question"], totals(without)["amount_in_question"])
 
     def test_balance_bridge_traces_the_whole_gap(self):

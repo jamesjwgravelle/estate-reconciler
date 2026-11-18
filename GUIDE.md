@@ -75,6 +75,10 @@ identified, and that is worth a question of its own.
 - Lawyers' invoices paid by the estate: whether they add up, entries billed twice, and
   time that looks like advice to the executor personally
 - Letters against the lawyers' own time records
+- Forms dated well before they were signed, and the gap between the final tax assessment
+  and the clearance certificate application
+- Fees paid to an agent (such as a trust company) alongside full executor compensation
+- Tax payments on a reassessment against the notices actually produced
 
 ## How cautious it is
 

@@ -46,10 +46,26 @@ def _read_text(path: Path) -> list[str]:
     return path.read_text(encoding="utf-8").splitlines()
 
 
+REPRINT = re.compile(r"reprint|reproduc|copy (made|printed)", re.I)
+
+
 def _doc_date(lines: list[str]) -> Optional[date]:
-    """First 'Date:' or 'Date issued:' header line with an ISO date."""
+    """The document's own date: a 'Date:' or 'Date issued:' header line with an ISO date.
+
+    A line describing a reprint or reproduction is skipped. A copy of a notice reprinted in
+    July is still a notice issued in December, and reading the reprint date as the issue date
+    would hide exactly the contradiction the timeline check exists to find."""
     for line in lines[:15]:
-        if line.lower().startswith("date"):
+        if line.lower().startswith("date") and not REPRINT.search(line):
+            m = ISO_DATE.search(line)
+            if m:
+                return parse_date(m.group(1))
+    return None
+
+
+def _reprint_date(lines: list[str]) -> Optional[date]:
+    for line in lines[:15]:
+        if REPRINT.search(line):
             m = ISO_DATE.search(line)
             if m:
                 return parse_date(m.group(1))
@@ -99,5 +115,6 @@ def load_matter(root: str | Path) -> Matter:
         elif suffix in (".txt", ".md", ".pdf"):
             lines = _read_text(path)
             m.texts.append(TextDoc(name=rel, lines=lines,
-                                   doc_type=classify_doc(rel, lines), date=_doc_date(lines)))
+                                   doc_type=classify_doc(rel, lines), date=_doc_date(lines),
+                                   reprinted=_reprint_date(lines)))
     return m

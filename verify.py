@@ -14,6 +14,7 @@ STEPS = [
     ("regenerate the demo matter", [sys.executable, "make_demo.py"]),
     ("unit tests", [sys.executable, "-m", "unittest", "discover", "tests"]),
     ("stage 1 eval against ground truth", [sys.executable, "evals/run_eval.py"]),
+    ("README results are current", [sys.executable, "evals/make_table.py", "--check"]),
     ("reports build", [sys.executable, "-m", "reconciler", "analyze", "demo_matter", "--out", "out"]),
 ]
 

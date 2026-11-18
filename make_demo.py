@@ -16,7 +16,7 @@ import csv
 from decimal import Decimal
 from pathlib import Path
 
-DATASET_VERSION = "3"   # bump when the planted problems or decoys change; eval runs record it
+DATASET_VERSION = "4"   # bump when the planted problems or decoys change; eval runs record it
 
 
 def build(root: str | Path, seeded: bool = True, decoys: bool = True) -> None:
@@ -44,6 +44,15 @@ def build(root: str | Path, seeded: bool = True, decoys: bool = True) -> None:
         # the will leaves $10,000 to the library; seeded: it is never paid
         *([] if S else [("D-13", "2023-12-01", "disbursement", "Bequest - Kingston Public Library Foundation", "10000.00")]),
         ("D-08", "2024-01-15", "disbursement", "Interim distribution to beneficiaries", "150000.00"),
+        # always present: a reassessment payment WITH its notice in the file (must raise nothing)
+        ("D-18", "2023-07-20", "disbursement", "CRA - balance owing on reassessment, deceased's 2021 T1 return", "612.40"),
+        # seeded: a paid agent administering the estate, as well as full compensation
+        *([("D-14", "2023-06-30", "disbursement", "Agent fees - Northshore Trust Company, estate administration", "2400.00"),
+           ("D-15", "2023-09-29", "disbursement", "Agent fees - Northshore Trust Company, estate administration", "2400.00"),
+           ("D-16", "2023-12-29", "disbursement", "Agent fees - Northshore Trust Company, estate administration", "2400.00"),
+           # seeded: a payment on a reassessment whose notice was never produced
+           ("D-17", "2023-11-20", "disbursement", "CRA - payment on reassessment, deceased's 2022 T1 return", "1480.00")]
+          if S else []),
         ("D-09", "2024-03-01", "disbursement", "Executor compensation", comp),
         # seeded: a penalty for filing the trust return late, paid from the estate
         *([("D-12", "2024-03-15", "disbursement", "CRA - late-filing penalty, T3 return", "350.00")] if S else []),
@@ -88,6 +97,11 @@ def build(root: str | Path, seeded: bool = True, decoys: bool = True) -> None:
         ("2024-01-15", "WIRE OUT BENEFICIARY DISTRIBUTION", "150000.00", ""),
         ("2024-02-28", "CANADA REVENUE AGENCY REFUND", "", "1942.67"),
         ("2024-03-01", "TRANSFER TO D COLBY EXECUTOR COMPENSATION", comp, ""),
+        ("2023-07-20", "CANADA REVENUE AGENCY PAYMENT", "612.40", ""),
+        *([("2023-06-30", "NORTHSHORE TRUST CO AGENCY FEE", "2400.00", ""),
+           ("2023-09-29", "NORTHSHORE TRUST CO AGENCY FEE", "2400.00", ""),
+           ("2023-12-29", "NORTHSHORE TRUST CO AGENCY FEE", "2400.00", ""),
+           ("2023-11-20", "CANADA REVENUE AGENCY PAYMENT", "1480.00", "")] if S else []),
         *([("2024-03-15", "CANADA REVENUE AGENCY T3 PENALTY", "350.00", "")] if S else
           [("2023-12-01", "CHQ 108 KINGSTON PUBLIC LIBRARY FDN", "10000.00", "")]),
     ]
@@ -105,11 +119,14 @@ def build(root: str | Path, seeded: bool = True, decoys: bool = True) -> None:
         "Date: 2019-06-03\n\n"
         "I appoint my niece, Diane Colby, as Executor and Trustee of my Estate.\n"
         "I give the sum of $10,000 to the Kingston Public Library Foundation.\n"
+        "I authorize my Executor to employ a trust company as agent to assist in administering my Estate, and to pay its fees from my Estate.\n"
         "I direct that the residue of my Estate be divided equally among my grandchildren.\n",
         encoding="utf-8")
 
     (root / "cra_notice_of_assessment_2023.txt").write_text(
         "NOTICE OF ASSESSMENT - T3 TRUST INCOME TAX\n"
+        # seeded: the copy produced is a reprint, and the reprint date comes first on the page
+        + ("Date reprinted: 2025-07-02\n" if S else "") +
         "Date issued: 2024-12-17\n"
         "Addressed to: Estate of Margaret Ellen Hartwell, c/o Northshore Trust Company\n\n"
         "Tax year: 2023\n"
@@ -151,6 +168,7 @@ def build(root: str | Path, seeded: bool = True, decoys: bool = True) -> None:
         "The Executor is still waiting on the Notice of Assessment from CRA and cannot apply for the clearance certificate until it arrives.\n",
         encoding="utf-8")
     _invoices(root, S, D)
+    _tax_documents(root, S)
     _routine_letters(root)
 
 
@@ -206,6 +224,32 @@ def _invoices(root: Path, S: bool, D: bool) -> None:
     ]
     _invoice(root / "invoices" / "invoice_whitlock_pryce_2025-03.txt", "2025-0331", "2025-03-31",
              "2024-12-01 to 2025-03-31 (not yet paid; after the accounting period)", second)
+
+
+def _tax_documents(root: Path, S: bool) -> None:
+    (root / "cra_notice_of_reassessment_2021.txt").write_text(
+        "NOTICE OF REASSESSMENT - T1 INDIVIDUAL INCOME TAX\n"
+        "Date issued: 2023-06-22\n"
+        "Taxpayer: Margaret Ellen Hartwell (deceased)\n\n"
+        "Tax year: 2021\n"
+        "Amount owing: $612.40\n", encoding="utf-8")
+    # seeded: printed date in January, signed in July. Clean: signed within the week.
+    (root / "application_for_clearance_certificate.txt").write_text(
+        "APPLICATION FOR CLEARANCE CERTIFICATE\n"
+        "Date on form: 2025-01-06\n"
+        "Estate of Margaret Ellen Hartwell\n"
+        "Applicant: Diane Colby, Executor\n\n"
+        "Distribution of property is planned after the certificate is issued.\n\n"
+        f"Signed by the Executor: {'2025-07-08' if S else '2025-01-10'}\n", encoding="utf-8")
+    if S:
+        # seeded: a second letter saying the notice is outstanding, three months after it was issued
+        (root / "correspondence" / "2025-03-14_letter.txt").write_text(
+            "Date: 2025-03-14\n"
+            "From: Whitlock & Pryce LLP (counsel to the Executor)\n"
+            "To: Adeyemi Law (counsel to a beneficiary)\n"
+            "Re: Estate of Margaret Ellen Hartwell\n\n"
+            "The Executor is awaiting the Notice of Assessment from CRA.\n"
+            "We will write again once it has been received.\n", encoding="utf-8")
 
 
 def _routine_letters(root: Path) -> None:

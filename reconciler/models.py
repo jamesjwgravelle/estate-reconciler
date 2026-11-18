@@ -62,6 +62,7 @@ class TextDoc:
     lines: list[str]
     doc_type: Optional[str] = None   # a key from extract.DOC_TYPES, if recognised
     date: Optional[date] = None
+    reprinted: Optional[date] = None   # date a copy was reprinted, if the document says so
 
 
 @dataclass

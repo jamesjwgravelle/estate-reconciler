@@ -23,9 +23,10 @@ class TypeInfo:
 LEDGER = "Accounts and bank records disagree"
 TOTALS = "Totals and balances (not added: these overlap with the items above)"
 LETTERS = "Letters disagree with the records"
-COMP = "Executor compensation above the guideline"
+COMP = "Executor compensation"
 WILL = "Gifts in the will not shown as paid"
 COSTS = "Costs charged to the estate that may be avoidable"
+TAX = "Tax payments without the notice behind them"
 FEES = "Legal fees charged to the estate"
 DOCS = "Documents and statements about them"
 TIMING = "Timing (no amount in doubt)"
@@ -47,12 +48,19 @@ CATALOG: dict[str, TypeInfo] = {
     "compensation_review": TypeInfo(
         "Compensation above the guideline", COMP, True,
         "Please provide the basis for the compensation claimed, including any record of time spent."),
+    "agent_fee_offset": TypeInfo(
+        "Agent fees paid as well as full compensation", COMP, False,   # overlaps with compensation_review
+        "Please explain what administration the executor performed personally, and whether compensation "
+        "has been adjusted for the fees paid to the agent."),
     "unpaid_bequest": TypeInfo(
         "Gift in the will with no payment shown", WILL, True,
         "Please confirm whether this gift has been paid and, if so, produce the record of payment."),
     "avoidable_cost": TypeInfo(
         "Penalty or late charge paid by the estate", COSTS, True,
         "Please explain how this charge arose and why it was paid from the estate."),
+    "unsupported_tax_payment": TypeInfo(
+        "Tax payment without the notice behind it", TAX, True,
+        "Please produce the Notice of Reassessment to which this payment relates."),
     "invoice_arithmetic": TypeInfo(
         "Invoice does not add up", FEES, True,
         "Please provide a corrected invoice or the time records that support the fees billed."),
@@ -71,6 +79,9 @@ CATALOG: dict[str, TypeInfo] = {
     "billing_contradiction": TypeInfo(
         "Letter contradicts the lawyers' time records", DOCS, False,
         "Please confirm when this document was first received by the executor or her counsel."),
+    "document_date_conflict": TypeInfo(
+        "Form dated well before it was signed", DOCS, False,
+        "Please confirm the date on which this form was signed and submitted."),
     "arithmetic_error": TypeInfo(
         "Total does not add up", TOTALS, False,
         "Please provide a corrected summary of accounts."),
@@ -80,6 +91,9 @@ CATALOG: dict[str, TypeInfo] = {
     "date_mismatch": TypeInfo(
         "Different date in the accounts and at the bank", TIMING, False,
         "Please confirm the date on which this payment was made."),
+    "clearance_delay": TypeInfo(
+        "Delay between final assessment and clearance application", TIMING, False,
+        "Please explain the interval between the final assessment and the application for the clearance certificate."),
 }
 
 FALLBACK = TypeInfo("Other", "Other", False, "Please provide an explanation.")

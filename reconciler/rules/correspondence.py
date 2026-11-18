@@ -17,6 +17,7 @@ def check_correspondence(m: Matter, cfg: Config) -> list[Finding]:
         produced.setdefault("bank_records", None)
 
     missing: dict[str, list[Evidence]] = {}
+    pending: dict[str, list] = {}       # doc type -> [(letter date, evidence)]
     known_amounts = {t.amount for t in m.accounts} | {t.amount for t in m.bank}
 
     for doc in m.texts:
@@ -32,15 +33,7 @@ def check_correspondence(m: Matter, cfg: Config) -> list[Finding]:
                 held = produced.get(dt)
                 if (PENDING.search(s.text) and held is not None and held.date and doc.date
                         and doc.date > held.date):
-                    gap = (doc.date - held.date).days
-                    out.append(Finding(
-                        "timeline_contradiction", dt, "high",
-                        f"Letter of {doc.date} says the {label} is outstanding; it is dated {held.date}",
-                        f"The document in the production is dated {gap} days before the letter "
-                        "describing it as not yet received.",
-                        [s.cite(), Evidence(held.name, "header", f"dated {held.date}")],
-                        plain=f"A letter dated {doc.date} said the {label} had not yet arrived. "
-                              f"The copy we have is dated {held.date}, {gap} days earlier."))
+                    pending.setdefault(dt, []).append((doc.date, s.cite()))
 
             # (c) dollar figures in letters that match nothing in the records
             for amt in s.amounts():
@@ -58,6 +51,24 @@ def check_correspondence(m: Matter, cfg: Config) -> list[Finding]:
                         amount=abs(amt - best.amount),
                         plain=f"A letter gave {fmt(amt)} as the figure for \"{best.description}\". "
                               f"The accounts record {fmt(best.amount)}, a difference of {fmt(abs(amt - best.amount))}."))
+
+    for dt, letters in pending.items():
+        held, label = produced[dt], DOC_TYPES[dt][0]
+        letters.sort(key=lambda x: x[0])
+        first, last = letters[0][0], letters[-1][0]
+        reprint = (f" The copy produced was reprinted on {held.reprinted}; the original issue date is {held.date}."
+                   if held.reprinted else "")
+        out.append(Finding(
+            "timeline_contradiction", dt, "high",
+            f"{len(letters)} letter(s) from {first} to {last} say the {label} is outstanding; it is dated {held.date}",
+            f"The document in the production is dated {(first - held.date).days} days before the first letter "
+            f"describing it as not yet received.{reprint}",
+            [e for _, e in letters] + [Evidence(held.name, "header", f"dated {held.date}"
+                                                + (f"; reprinted {held.reprinted}" if held.reprinted else ""))],
+            plain=f"{'A letter' if len(letters) == 1 else str(len(letters)) + ' letters'} from the executor's lawyers, "
+                  f"the first dated {first}, said the {label} had not yet arrived. The notice itself is dated "
+                  f"{held.date}." + (f" The copy we were given is a reprint made on {held.reprinted}, which "
+                                     "can make the notice look more recent than it is." if held.reprinted else "")))
 
     for dt, cites in missing.items():
         label = DOC_TYPES[dt][0]

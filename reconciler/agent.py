@@ -20,11 +20,11 @@ from dataclasses import asdict, dataclass, field
 from .models import Evidence, Finding, Matter
 from .tools import SPECS, Toolbox, ref
 
-AGENT_VERSION = "v6"   # bump whenever the prompt or a rule changes, so eval runs stay comparable
+AGENT_VERSION = "v7"   # bump whenever the prompt or a rule changes, so eval runs stay comparable
 
 VERDICTS = {"explained", "stands", "needs_human"}
 # Questions of judgment, not lookup: is the compensation reasonable; who should bear a penalty.
-JUDGMENT_ONLY = {"compensation_review", "avoidable_cost", "personal_legal_fees"}
+JUDGMENT_ONLY = {"compensation_review", "avoidable_cost", "personal_legal_fees", "agent_fee_offset"}
 # Findings the file cannot explain away. A total that does not equal the sum of its entries is
 # wrong whatever else is in the file; the model may identify a likely cause, but that is a lead,
 # not a clearance. A balance gap can have an innocent cause (an uncashed cheque), but a

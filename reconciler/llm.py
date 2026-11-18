@@ -7,6 +7,8 @@ leave the machine. Configure with environment variables:
     RECONCILER_LLM_MODEL      a model that supports tool calling, for the investigator
     RECONCILER_LLM_API_KEY    optional
     RECONCILER_REVIEW_MODEL   optional: a different model to act as second reviewer of clearances
+    RECONCILER_LLM_TIMEOUT    optional: seconds to wait for one reply (default 900). Raise it if
+                              models are swapped in and out of GPU memory between calls.
 """
 from __future__ import annotations
 
@@ -21,11 +23,11 @@ def configured() -> bool:
 
 class Client:
     def __init__(self, base_url: str | None = None, model: str | None = None,
-                 api_key: str | None = None, timeout: int = 300):
+                 api_key: str | None = None, timeout: int | None = None):
         self.base = (base_url or os.environ["RECONCILER_LLM_BASE_URL"]).rstrip("/")
         self.model = model or os.environ["RECONCILER_LLM_MODEL"]
         self.key = api_key or os.environ.get("RECONCILER_LLM_API_KEY")
-        self.timeout = timeout
+        self.timeout = timeout or int(os.environ.get("RECONCILER_LLM_TIMEOUT", "900"))
 
     def complete(self, messages: list[dict], tools: list[dict] | None = None,
                  temperature: float = 0, seed: int | None = None) -> dict:
